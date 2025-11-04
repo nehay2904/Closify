@@ -1,55 +1,65 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet , Button, Alert} from "react-native";
 import * as WebBrowser from "expo-web-browser";
-import * as Google from "expo-auth-session/providers/google";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import Colors from "../constants/colors";
 
 WebBrowser.maybeCompleteAuthSession();
 
-export default function Login({ navigation }) {
-  const [email, setEmail] = useState("");
+export default function Sign_up({ navigation }) {
+    const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
- const handleLogin = async () => {
-  if (!email || !password) {
-    Alert.alert("Missing Fields", "Please enter both email and password");
-    return;
-  }
+const [loading, setLoading] = useState(false);
 
-  try {
-    console.log("Sending login data:", { email, password });
+  const handleRegister = async () => {
+    if (!username || !email || !password) {
+      Alert.alert("Missing Fields", "Please fill in all fields");
+      return;
+    }
 
-    const res = await axios.post("https://closify-server-1.onrender.com/login", {
-      email,
-      password,
-    });
+    try {
+      setLoading(true);
 
-    console.log("✅ Login success:", res.data);
+      const res = await axios.post("https://closify-server-1.onrender.com/register", {
+        name: username,
+        email,
+        password,
+      });
 
-    await AsyncStorage.setItem("token", res.data.token);
-    await AsyncStorage.setItem("user", JSON.stringify(res.data.user));
+      console.log("✅ Registration success:", res.data);
+      
 
-    Alert.alert("Welcome", `Hello ${res.data.user.name}!`);
-    navigation.replace("MainTabs");
-  } catch (error) {
-    console.error("❌ Login error:", error.response?.data || error.message);
-    Alert.alert("Login Failed", error.response?.data?.message || "Something went wrong!");
-  }
-};
+      Alert.alert("Success", "Account created successfully!");
+      await AsyncStorage.setItem("userEmail", email);
+       navigation.replace("MainTabs"); 
+    } catch (error) {
+      console.error("❌ Registration error:", error.response?.data || error.message);
+      Alert.alert("Error", error.response?.data?.message || "Something went wrong!");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
    
      <View style={styles.container}>
           <Text style={styles.logo}>💎</Text>
           <Text style={styles.title}>Welcome back, Gorgeous</Text>
-    
           <TextInput
             style={styles.input}
-            placeholder="Enter your useremail"
+            placeholder="Enter your email"
             placeholderTextColor="#888888ff"
             value={email}
             onChangeText={setEmail}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your username"
+            placeholderTextColor="#888888ff"
+            value={username}
+            onChangeText={setUsername}
           />
            <TextInput
             style={styles.input}
@@ -58,12 +68,12 @@ export default function Login({ navigation }) {
             value={password}
             onChangeText={setPassword}
           />
-         <TouchableOpacity style={styles.mainButton} onPress={handleLogin}>
-           <Text style={{ fontSize: 16}}>Login </Text>
+         <TouchableOpacity style={styles.mainButton} onPress={handleRegister}>
+           <Text style={{ fontSize: 16}}>Sign Up </Text>
          </TouchableOpacity>
            <Text style={styles.footer}>
             New here?{" "}
-            <Text style={styles.link}  onPress={() => navigation.navigate("sign_up")}> click here to sign up</Text> 
+            <Text style={styles.link}  onPress={() => navigation.navigate("Login")}> click here to Login</Text> 
       
           </Text>
           <Text style={styles.footer}>

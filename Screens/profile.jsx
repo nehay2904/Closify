@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet } from "rea
 import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Profile() {
+export default function Profile({navigation}) {
   return (
     <SafeAreaView style={styles.container}>
       {/* Scrollable content */}
@@ -11,7 +11,7 @@ export default function Profile() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>My Account</Text>
-          <MaterialIcons name="settings" size={26} color="#333" />
+          <MaterialIcons name="settings" size={26} color="#333"  onPress={() => navigation.navigate("settings")}/>
         </View>
 
         {/* Profile Section */}
@@ -49,9 +49,9 @@ export default function Profile() {
         ))}
 
         {/* Logout */}
-        <TouchableOpacity style={styles.logoutBtn}>
+        <TouchableOpacity style={styles.logoutBtn}  onPress={() => navigation.navigate("Login")}>
           <MaterialIcons name="logout" size={22} color="#888" />
-          <Text style={styles.logoutText}>Log Out</Text>
+          <Text style={styles.logoutText} onPress={() => navigation.navigate("Login")}>Log Out</Text>
         </TouchableOpacity>
       </ScrollView>
 

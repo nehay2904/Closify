@@ -1,9 +1,10 @@
 {
-  "expo": {
+  "expo": { 
     "name": "my-app",
     "slug": "my-app",
     "version": "1.0.0",
     "orientation": "portrait",
+    "platforms": ["android", "ios", "web"],
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
@@ -16,6 +17,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.neha_y22.myapp",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -25,6 +27,14 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-web-browser"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "1f0ae98b-f7b6-4576-914c-09d8fd8c5fbb"
+      }
     }
   }
 }

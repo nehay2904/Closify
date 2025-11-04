@@ -11,6 +11,7 @@ import Categories from '../Screens/Categories';
 import Profile from '../Screens/profile';
 import Setting_screen from '../Screens/Settings';
 import Colors from "../constants/colors";
+import ShoppingCart from "../Screens/Shopping_cart";
 
 const Tab = createBottomTabNavigator();
 
@@ -19,11 +20,11 @@ export default function BottomTab() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: "#777",
+        tabBarActiveTintColor: "#578773ff",
+        tabBarInactiveTintColor: "#72a58a7c",
         tabBarStyle: {
-          backgroundColor: "#fff",
-          height: 70,
+          backgroundColor: "#ffffffff",
+          height: 60,
           borderTopWidth: 0,
           elevation: 8,
         },
@@ -32,6 +33,7 @@ export default function BottomTab() {
           let iconName;
           if (route.name === "Home") iconName = "home";
           else if (route.name === "Categories") iconName = "category";
+          else if (route.name === "shopping-bag") iconName = "shopping-bag";
           else if (route.name === "Profile") iconName = "person";
 
           return (
@@ -57,6 +59,7 @@ export default function BottomTab() {
     >
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Categories" component={Categories} />
+      <Tab.Screen name="shopping-bag" component={ShoppingCart} />
       <Tab.Screen name="Profile" component={Profile} />
     </Tab.Navigator>
   );

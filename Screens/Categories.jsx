@@ -65,12 +65,7 @@ export default function Categories() {
         <View style={styles.headerIcons}>
           <MaterialIcons name="search" size={24} color="#4A4A4A" />
           <MaterialIcons name="favorite-border" size={24} color="#4A4A4A" />
-          <View>
-            <MaterialIcons name="shopping-bag" size={24} color="#4A4A4A" />
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>3</Text>
-            </View>
-          </View>
+        
         </View>
       </View>
 
@@ -125,7 +120,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -4,
     right: -8,
-    backgroundColor: "#b8f9e3ff",
+    backgroundColor: "#305347ff",
     borderRadius: 8,
     width: 16,
     height: 16,
@@ -141,7 +136,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     color: "#4a4a4aff",
-    marginTop: 12,
+    margin: 12,
     marginHorizontal: 16,
   },
   grid: {

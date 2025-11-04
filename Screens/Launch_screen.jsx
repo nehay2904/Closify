@@ -23,8 +23,8 @@ export default function SplashScreen({ navigation }) {
 
     // Navigate to Login after 3 seconds
     const timer = setTimeout(() => {
-      navigation.replace("Login");
-    }, 2000);
+      navigation.replace("sign_up");
+    }, 4000);
 
     return () => clearTimeout(timer);
   }, []);
