@@ -1,9 +1,19 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Profile({navigation}) {
+  
+  const [user, setUser] = useState(null);
+    useEffect(() => {
+    const loadUser = async () => {
+      const userData = await AsyncStorage.getItem("user");
+      if (userData) setUser(JSON.parse(userData));
+    };
+    loadUser();
+  }, []);
   return (
     <SafeAreaView style={styles.container}>
       {/* Scrollable content */}
@@ -22,9 +32,18 @@ export default function Profile({navigation}) {
             }}
             style={styles.profilePic}
           />
-          <Text style={styles.name}>Eliza Schneider</Text>
-          <Text style={styles.email}>eliza.s@example.com</Text>
+            {user ? (
+             <Text style={styles.name}>Welcome, {user.name}!</Text>
+      ) : (
+        <Text style={styles.name}>Loading user info...</Text>
+      )}   
+       {user ? (
+         <Text style={styles.email}>{user.email}</Text>
 
+      ) : (
+        <Text style={styles.name}>Loading user info...</Text>
+      )}
+          
           <TouchableOpacity style={styles.editButton}>
             <Text style={styles.editText}>Edit Profile</Text>
           </TouchableOpacity>
