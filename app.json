@@ -1,10 +1,14 @@
 {
-  "expo": { 
+  "expo": {
     "name": "my-app",
     "slug": "my-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "platforms": ["android", "ios", "web"],
+    "platforms": [
+      "android",
+      "ios",
+      "web"
+    ],
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
@@ -35,6 +39,13 @@
       "eas": {
         "projectId": "1f0ae98b-f7b6-4576-914c-09d8fd8c5fbb"
       }
+    },
+    "owner": "neha_y22",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1f0ae98b-f7b6-4576-914c-09d8fd8c5fbb"
     }
   }
 }

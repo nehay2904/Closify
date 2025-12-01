@@ -1,5 +1,5 @@
 // App.js
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   StatusBar,
   View,
@@ -16,6 +16,7 @@ import {
 import { MaterialIcons } from "@expo/vector-icons"; // expo install @expo/vector-icons
 import { SafeAreaView } from "react-native-safe-area-context";
 import Colors from "../constants/colors";
+import axios from "axios";
 
 const { width } = Dimensions.get("window");
 
@@ -38,43 +39,17 @@ const heroImage =
 const newArrivalImage =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuCuPTr3zvug2YBvqWEHknJamNIVsZ-OPjNX1tVOcLh7o-aIZBZLZC51fq01v-3A9UiQK5EpiirXf40poxDKztti9yNWpnLifIb9ZeCbkzYi6KR1mgCE7_rXXz4tA4-sbK64zWE-18cxvFf9-5ebTPyMMDSTCqPDEveczZlQ3XnATOP9hpvIrsIl2w3mb-Iem1HFY59AlMWU-CPQcQAwvyBOJHL7-1brIvJtSFmhsJ2TuBCaULw0EA__K8JU8wgj0_JtBpJwOwccF4oS";
 
-const trending = [
-  {
-    id: "t1",
-    title: "The Classic Tote",
-    price: "$220.00",
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuA6pcLOlM1QTe4oylGrIGwnEae8zj5l3OTURCv0OFm4I3w-kYeB5wbns4JwRwXu3m7Z-vfbuHdiSqH-TSGZhJo6WxpqR9cxEWvD1R-73m5kcMwD9tzfPxKT3cNExAQ1c-R9z8mZk_9RckjvVghjRscgpuRA2S0Ds2twILfmUeq2AkqTad-1Fqy5S9YA6PLePMjZAcXPzX25sOzDIuCx1xjgPjeVFJVaymn6JEJy0rERsveFRYTwH_yqMheoykNcAY_gnxinwU8NYsA3",
-  },
-  {
-    id: "t2",
-    title: "Floral Midi Dress",
-    price: "$120.00",
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuB081fkcnsqzYhp6m558Z6VRqAhy7TQgNpe8HNlxQwPSoGJe8XjM_lc47u-rLQ2XJg4xXBfV92jFtbDOcZHYnNHPIBvtfUADSC1wwgtFm1xFRyVyaM56SSEPabEXp0nUd2gPcMQZ8ij2t2geugOaDysSU0MYzilt-xsyoiF-Fgg1nJsVW9CcPB3Npt95h5v9lzJW5JCGzmz2ENzuxkeZHZGcoCR3jTJDEgSj356ZZiD7TGIqlR7QLqFTAsqEAj4rt8-tx_zvaRFhUdV",
-  },
-];
 
-const editorsPicks = [
-  {
-    id: "e1",
-    title: "Oversized Sunglasses",
-    price: "$140.00",
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuANv_dzxiq4JCC3VsU92zUu-sfBfueHIGkV0qoa7dCBc281bJcMzBq2by9OUtOsyMFZ1CIDwY5VYSWOOGbY7HxtlBAT8xNM0BOopX6V4MMSRt40MA35lRsEZOg0cZ-ePtHaB0o7hmTYx2G6tbhgFA_3ZubGM2d0IBTZlHgAS4OZ131oQIM0hJF3bdlRrTtmBC9KqdwJm-YWjLRpSnwcyiUdOianoV4evLuQuAbh7uBv4OAqEkOmHSU1F7fHCGX0rUrqxLzhPMIFWNh_",
-  },
-  {
-    id: "e2",
-    title: "Leather Crossbody",
-    price: "$190.00",
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuA6pcLOlM1QTe4oylGrIGwnEae8zj5l3OTURCv0OFm4I3w-kYeB5wbns4JwRwXu3m7Z-vfbuHdiSqH-TSGZhJo6WxpqR9cxEWvD1R-73m5kcMwD9tzfPxKT3cNExAQ1c-R9z8mZk_9RckjvVghjRscgpuRA2S0Ds2twILfmUeq2AkqTad-1Fqy5S9YA6PLePMjZAcXPzX25sOzDIuCx1xjgPjeVFJVaymn6JEJy0rERsveFRYTwH_yqMheoykNcAY_gnxinwU8NYsA3",
-  },
-  {
-    id: "e3",
-    title: "Cashmere Sweater",
-    price: "$250.00",
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCerawpr5aZPMS1YVqANRjz1Vo7OHyiDlDWUxX8Qpt0APTdh6mArQnzpTtGo55hqJhZxDHsOnxipxn5bLInaXdEQ9AJuzOXUfgkTaIVoxjCJMlbg3AuhjWzNgNmjSL8_IAhfAQlT1lwqRKWK0FfgIlU2WNo6z_uuYSSu_7dUt-o1Z399APSgz2_fAHjGRd8l7aF4EuvNgdCQG2NjxSVyBWJMTbRsaxUL_q4_3ac79lAXaHxtTBim_KKgypAZEsiwUXOqZaUTtNmn6k9",
-  },
-];
 
 export default function Home({navigation}) {
+   const [data, setData] = useState("");
+    useEffect(() => {
+    const fetchData = async () => {
+      const res = await axios.get("https://closify-server-3.onrender.com/products/trending");
+      setData(res.data);
+    };
+    fetchData();
+  }, []);
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: COLORS.backgroundLight }]}>
       <StatusBar barStyle="dark-content" translucent={false} />
@@ -110,26 +85,35 @@ export default function Home({navigation}) {
             </ImageBackground>
           </View>
             {/* Trending Now */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Trending Now</Text>
-              <TouchableOpacity>
-                <Text style={styles.viewAll}>View All</Text>
-              </TouchableOpacity>
-            </View>
+         <View style={styles.section}>
+  <View style={styles.sectionHeader}>
+    <Text style={styles.sectionTitle}>Trending Now</Text>
+    <TouchableOpacity>
+      <Text style={styles.viewAll}>View All</Text>
+    </TouchableOpacity>
+  </View>
 
-            <View style={styles.trendingGrid}>
-              {trending.map((item) => (
-                <View key={item.id} style={styles.trendingItem}>
-                  <Image source={{ uri: item.img }} style={styles.trendingImage} />
-                  <Text numberOfLines={1} style={styles.itemTitle}>
-                    {item.title}
-                  </Text>
-                  <Text style={styles.itemPrice}>{item.price}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
+  <ScrollView 
+    horizontal 
+    showsHorizontalScrollIndicator={false}
+    contentContainerStyle={{ paddingHorizontal: 10 }}
+  >
+    
+    {data.map((item) => (
+      <View key={item.product_id} style={styles.trendingItem}>
+        <Image 
+          source={{ uri: item.product_URL }} 
+          style={styles.trendingImage} 
+        />
+        <Text numberOfLines={1} style={styles.itemTitle}>
+          {item.Description}
+        </Text>
+        <Text style={styles.itemPrice}>{item.Price}</Text>
+      </View>
+    ))}
+  </ScrollView>
+</View>
+
           {/* New Arrivals */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>

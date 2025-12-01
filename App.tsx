@@ -8,6 +8,7 @@ import Setting_screen from "./Screens/Settings";
 import Wishlist from "./Screens/Wishlist";
 import Login from "./Screens/Login";
 import Sign_up from "./Screens/Sign_up";
+import Home from "./Screens/Home";
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
         <Stack.Screen name="wishlist" component={Wishlist} />
       </Stack.Navigator>
     </NavigationContainer>
+    
     
     //  <NavigationContainer>
     //   <Stack.Navigator screenOptions={{ headerShown: false }}>
