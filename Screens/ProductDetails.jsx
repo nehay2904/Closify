@@ -13,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { CartContext } from "../Context/Cardcontext";
+import { WishlistContext } from "../Context/WishlistContext";
 
 const { width } = Dimensions.get("window");
 
@@ -24,6 +25,8 @@ export default function ProductDetails({ route, navigation }) {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const { addToCart } = useContext(CartContext);
+   const { addToWishlist, removeFromWishlist, wishlist } = useContext(WishlistContext);
+
   const id = route?.params?.id;
 
   useEffect(() => {
@@ -64,7 +67,23 @@ export default function ProductDetails({ route, navigation }) {
       </View>
     );
   }
+const handleWishlist = () => {
+  const item = {
+    _id: product._id,
+    Brand: product.Brand,
+    Description: product.Description,
+    Price: product.Price,
+    product_URL: product.product_URL,
+  };
 
+  if (isFavorite) {
+    removeFromWishlist(product._id);
+    setIsFavorite(false);
+  } else {
+    addToWishlist(item);
+    setIsFavorite(true);
+  }
+};
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -165,17 +184,16 @@ export default function ProductDetails({ route, navigation }) {
       <View style={styles.footer}>
         {!isAdded ? (
           <View style={styles.footerRow}>
-            <TouchableOpacity
-              style={styles.heartButton}
-              onPress={() => setIsFavorite(!isFavorite)}
-            >
-              <Ionicons
-                name={isFavorite ? "heart" : "heart-outline"}
-                size={24}
-                color={isFavorite ? "red" : "black"}
-              />
-            </TouchableOpacity>
-
+           <TouchableOpacity
+  style={styles.heartButton}
+  onPress={handleWishlist}
+>
+  <Ionicons
+    name={isFavorite ? "heart" : "heart-outline"}
+    size={24}
+    color={isFavorite ? "red" : "black"}
+  />
+</TouchableOpacity>
             <TouchableOpacity
               style={styles.cartButton}
               onPress={handleAddToCart}

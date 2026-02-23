@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   View,
   Text,
@@ -8,76 +8,60 @@ import {
   StyleSheet,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import BottomTab from "../Navigation/Bottomnav";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Colors from "../constants/colors";
+import { WishlistContext } from "../Context/WishlistContext";
 
-export default function Wishlist({navigation}) {
-  const products = [
-    {
-      id: 1,
-      brand: "Aura London",
-      name: "Floral Print Maxi Dress",
-      price: "$129.00",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuDX_5Ave6R1r5LmqdA69khQHlnpJ0DEPQ4gcsZlP3SmmDCBPTSjQGP3dKjefwh0kO1VjtfkS4iM1j7PGbKWUGsJwQdfW0zcTGNY2fKxHMCayT_8h6hwrEZ76vntpbetfjKUYptc3MeNot4QIozQBrTkwhXsxtoB-4EEB3mQcIDoIBfEs2g3kakjzrtZvzow0ELR1PzicBWs02fYztSa3e_3HQUJ4EbMhW5WohWeV2HqZP78J56W93a1pWvSgeL5_ZlEhdsSDUMTqjHe",
-    },
-    {
-      id: 2,
-      brand: "Vogue St.",
-      name: "Classic Trench Coat",
-      price: "$199.50",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuAK7IvqOS7xTDeC6qU2Yoo8KXKj6dRJOiwQnFM7BvkAjkGqgxKp7WhClvgN5cdW-try7Ris4JZoW0EqwP3xL7UTmKbs48WH2IOGg4RniJk-ZMK_LEb_q46MFhT-cB3FA0NIfTAOrSu_zB7ua1ZV0inDhA4yGL7-mv3s0PDjaVikE0Kn82AG0JAzK7XHq25-1UblN1l-mxD1vNC9tmJbe6IVSQziGDYc14_-TyTCcWNlOzRZhAN_311luVEsi1vdwdYdWs1tOusR7zQs",
-    },
-    {
-      id: 3,
-      brand: "Elysian",
-      name: "Rose Gold Handbag",
-      price: "$85.00",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuBdt9ZZFejJgmJGcjeX4oRYast6LPOMoiw1VsfpiMO5Tr_1hFJ9DKd3gkArPqQR4hXPkieHxqcxmmaVQMjGzHhtJLqL3TuImspkdWzDZQaHjlHP8kVKFPoLrPLSLvD1ecyc7RWOCDyCAg877rxWIa3lPtSGx_aWCMw1oPVok1hIl4XYaWjJkvrKswPzThEW9inJz1kdgx2ukDZ_2cnTKcSfjKT48E-FwXfTIUtk-QM0hOQOdQ0ku23slb-btdKxHikctJtwyuVP420Y",
-    },
-  ];
+export default function Wishlist({ navigation }) {
+  const { wishlist, removeFromWishlist } = useContext(WishlistContext);
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
-        <MaterialIcons name="arrow-back" size={26} color="#4A4A4A" onPress={() => navigation.navigate("MainTabs")}/>
+        <MaterialIcons
+          name="arrow-back"
+          size={26}
+          color="#4A4A4A"
+          onPress={() => navigation.navigate("MainTabs")}
+        />
         <Text style={styles.headerText}>My Wishlist</Text>
         <MaterialIcons name="ios-share" size={22} color="#4A4A4A" />
       </View>
 
-      {/* Product Grid */}
       <ScrollView contentContainerStyle={styles.grid}>
-        {products.map((item) => (
-          <View key={item.id} style={styles.card}>
-            <ImageBackground
-              source={{ uri: item.image }}
-              style={styles.image}
-              imageStyle={{ borderRadius: 14 }}
-            >
-              <TouchableOpacity style={styles.favoriteBtn}>
-                <MaterialIcons name="favorite" size={22} color="#D6B4A8" />
+        {wishlist.length === 0 ? (
+          <Text style={{ textAlign: "center", marginTop: 40 }}>
+            Your wishlist is empty
+          </Text>
+        ) : (
+          wishlist.map((item) => (
+            <View key={item._id} style={styles.card}>
+              <ImageBackground
+                source={{ uri: item.product_URL }}
+                style={styles.image}
+                imageStyle={{ borderRadius: 14 }}
+              >
+                <TouchableOpacity
+                  style={styles.favoriteBtn}
+                  onPress={() => removeFromWishlist(item._id)}
+                >
+                  <MaterialIcons name="favorite" size={22} color="red" />
+                </TouchableOpacity>
+              </ImageBackground>
+
+              <Text style={styles.brand}>{item.Brand}</Text>
+              <Text style={styles.name}>{item.Description}</Text>
+              <Text style={styles.price}>₹{item.Price}</Text>
+
+              <TouchableOpacity style={styles.addBtn}>
+                <Text style={styles.addText}>Add to Cart</Text>
               </TouchableOpacity>
-            </ImageBackground>
-
-            <Text style={styles.brand}>{item.brand}</Text>
-            <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.price}>{item.price}</Text>
-
-            <TouchableOpacity style={styles.addBtn}>
-              <Text style={styles.addText}>Add to Cart</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
+            </View>
+          ))
+        )}
       </ScrollView>
-
     </SafeAreaView>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
