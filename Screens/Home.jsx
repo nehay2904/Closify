@@ -37,12 +37,12 @@ const heroImage =
   "https://i.pinimg.com/736x/c7/2e/41/c72e41cae3d2ef0a3a7b8ba3819b6a49.jpg";
 
 const newArrivalImage =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuCuPTr3zvug2YBvqWEHknJamNIVsZ-OPjNX1tVOcLh7o-aIZBZLZC51fq01v-3A9UiQK5EpiirXf40poxDKztti9yNWpnLifIb9ZeCbkzYi6KR1mgCE7_rXXz4tA4-sbK64zWE-18cxvFf9-5ebTPyMMDSTCqPDEveczZlQ3XnATOP9hpvIrsIl2w3mb-Iem1HFY59AlMWU-CPQcQAwvyBOJHL7-1brIvJtSFmhsJ2TuBCaULw0EA__K8JU8wgj0_JtBpJwOwccF4oS";
+  "https://assets.newme.asia/wp-content/uploads/2024/07/2812134426390f5a/NM-PRC-74-DRS-24-JUL-7789-WHITE(1).webp";
 
 
 
 export default function Home({navigation}) {
-   const [data, setData] = useState("");
+   const [data, setData] = useState([]);
     useEffect(() => {
     const fetchData = async () => {
       const res = await axios.get("https://closify-server-3.onrender.com/products/trending");
@@ -50,10 +50,22 @@ export default function Home({navigation}) {
     };
     fetchData();
   }, []);
+
+    const [datas, setDatas] = useState([]);
+    useEffect(() => {
+    const fetchDatas = async () => {
+      const res = await axios.get("https://closify-server-3.onrender.com/products/editor_choice");
+      setDatas(res.data);
+    };
+    fetchDatas();
+  }, []);
+ 
+ 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: COLORS.backgroundLight }]}>
       <StatusBar barStyle="dark-content" translucent={false} />
       <View style={styles.container}>
+
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.iconBtn}>
@@ -78,7 +90,7 @@ export default function Home({navigation}) {
               <View style={styles.heroContent}>
                 <Text style={styles.heroSmall}>Effortless Essentials</Text>
                 <Text style={styles.heroTitle}>The Art of Dressing</Text>
-                <TouchableOpacity style={styles.discoverBtn}>
+                <TouchableOpacity style={styles.discoverBtn} onPress={() => navigation.navigate("Categories")}>
                   <Text style={styles.discoverText}>Discover More</Text>
                 </TouchableOpacity>
               </View>
@@ -87,8 +99,8 @@ export default function Home({navigation}) {
             {/* Trending Now */}
          <View style={styles.section}>
   <View style={styles.sectionHeader}>
-    <Text style={styles.sectionTitle}>Trending Now</Text>
-    <TouchableOpacity>
+    <Text style={styles.sectionTitle}>Trending Styles</Text>
+    <TouchableOpacity onPress={() => navigation.navigate("Categories")}>
       <Text style={styles.viewAll}>View All</Text>
     </TouchableOpacity>
   </View>
@@ -98,8 +110,12 @@ export default function Home({navigation}) {
     showsHorizontalScrollIndicator={false}
     contentContainerStyle={{ paddingHorizontal: 10 }}
   >
-    
-    {data.map((item) => (
+   {data.map((item) => (
+     <TouchableOpacity 
+    key={item.product_id} 
+    style={styles.trendingItem}
+    onPress={() => navigation.navigate("productDetails", { id: item._id })}
+  >
       <View key={item.product_id} style={styles.trendingItem}>
         <Image 
           source={{ uri: item.product_URL }} 
@@ -110,6 +126,7 @@ export default function Home({navigation}) {
         </Text>
         <Text style={styles.itemPrice}>{item.Price}</Text>
       </View>
+      </TouchableOpacity>
     ))}
   </ScrollView>
 </View>
@@ -117,10 +134,8 @@ export default function Home({navigation}) {
           {/* New Arrivals */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>New Arrivals</Text>
-              <TouchableOpacity>
-                <Text style={styles.viewAll}>View All</Text>
-              </TouchableOpacity>
+              <Text style={styles.sectionTitle}>New Arrival</Text>
+              
             </View>
 
             <TouchableOpacity activeOpacity={0.9} style={styles.largeCard}>
@@ -132,51 +147,46 @@ export default function Home({navigation}) {
               </ImageBackground>
             </TouchableOpacity>
           </View>
-
         
 
           {/* Editor's Picks */}
           <View style={[styles.section, { paddingBottom: 30 }]}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Editor's Picks</Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate("Categories")}>
                 <Text style={styles.viewAll}>View All</Text>
               </TouchableOpacity>
             </View>
-
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} pagingEnabled snapToAlignment="center">
-              {editorsPicks.map((p) => (
-                <View key={p.id} style={styles.picksCard}>
-                  <ImageBackground source={{ uri: p.img }} style={styles.picksImage} imageStyle={{ borderRadius: 18 }} />
-                  <Text numberOfLines={1} style={styles.itemTitle}>
-                    {p.title}
-                  </Text>
-                  <Text style={styles.itemPrice}>{p.price}</Text>
-                </View>
-              ))}
-            </ScrollView>
+            
+  <ScrollView 
+    horizontal 
+    showsHorizontalScrollIndicator={false}
+    contentContainerStyle={{ paddingHorizontal: 10 }}
+  >
+   {datas.map((items) => (
+    <TouchableOpacity 
+    key={items.product_id} 
+    style={styles.trendingItem}
+    onPress={() => navigation.navigate("productDetails", { id: items._id })}
+  >
+      <View key={items.product_id} style={styles.trendingItem}>
+        <Image 
+          source={{ uri: items.product_URL }} 
+          style={styles.trendingImage} 
+        />
+        <Text numberOfLines={1} style={styles.itemTitle}>
+          {items.Description}
+        </Text>
+        <Text style={styles.itemPrice}>{items.Price}</Text>
+      </View>
+      </TouchableOpacity>
+    ))}
+  </ScrollView>
+  
           </View>
         </ScrollView>
 
-        {/* Bottom Nav
-        <View style={styles.bottomNav}>
-          <TouchableOpacity style={styles.bottomItem}>
-            <MaterialIcons name="home" size={26} color={COLORS.primary} />
-            <Text style={[styles.bottomLabel, { color: COLORS.primary }]}>Home</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.bottomItem}>
-            <MaterialIcons name="category" size={26} color={COLORS.mutedLight} />
-            <Text style={styles.bottomLabel}>Categories</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.bottomItem}>
-            <MaterialIcons name="shopping-bag" size={26} color={COLORS.mutedLight} />
-            <Text style={styles.bottomLabel}>Bag</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.bottomItem}>
-            <MaterialIcons name="person" size={26} color={COLORS.mutedLight} />
-            <Text style={styles.bottomLabel}>Profile</Text>
-          </TouchableOpacity>
-        </View> */}
+
       </View>
     </SafeAreaView>
   );
@@ -217,9 +227,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   heroWrap: {
-    height: 260,
+    height: 420,
     backgroundColor: COLORS.primarySubtle,
-    margin: 12,
+    margin: 22,
     borderRadius: 14,
     overflow: "hidden",
   },
@@ -263,18 +273,19 @@ const styles = StyleSheet.create({
   },
   section: {
     marginHorizontal: 16,
-    marginTop: 6,
+    marginTop: 23,
   },
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "baseline",
-    marginBottom: 8,
+    marginBottom: 17,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: "800",
     color: COLORS.textLight,
+    marginLeft: 12
   },
   viewAll: {
     color: COLORS.secondary,
@@ -311,12 +322,14 @@ const styles = StyleSheet.create({
   },
   trendingItem: {
     width: (width - 48) / 2,
+    marginRight:11
   },
   trendingImage: {
     width: "100%",
     aspectRatio: 3 / 4,
     borderRadius: 14,
-    marginBottom: 8,
+    objectFit:"cover"
+    
   },
   itemTitle: {
     fontSize: 14,

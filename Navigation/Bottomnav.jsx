@@ -11,7 +11,8 @@ import Categories from '../Screens/Categories';
 import Profile from '../Screens/profile';
 import Setting_screen from '../Screens/Settings';
 import Colors from "../constants/colors";
-import ShoppingCart from "../Screens/Shopping_cart";
+import ShoppingCart from "../Proceed_to_checkout/Shopping_cart";
+
 
 const Tab = createBottomTabNavigator();
 

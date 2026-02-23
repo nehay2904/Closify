@@ -153,3 +153,135 @@ const styles = StyleSheet.create({
   //     console.error("❌ Error fetching user info:", err);
   //   }
   // };
+
+   {/* Bottom Nav
+        <View style={styles.bottomNav}>
+          <TouchableOpacity style={styles.bottomItem}>
+            <MaterialIcons name="home" size={26} color={COLORS.primary} />
+            <Text style={[styles.bottomLabel, { color: COLORS.primary }]}>Home</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.bottomItem}>
+            <MaterialIcons name="category" size={26} color={COLORS.mutedLight} />
+            <Text style={styles.bottomLabel}>Categories</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.bottomItem}>
+            <MaterialIcons name="shopping-bag" size={26} color={COLORS.mutedLight} />
+            <Text style={styles.bottomLabel}>Bag</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.bottomItem}>
+            <MaterialIcons name="person" size={26} color={COLORS.mutedLight} />
+            <Text style={styles.bottomLabel}>Profile</Text>
+          </TouchableOpacity>
+        </View> */}
+
+
+
+
+        export default function ShoppingCart({navigation}) {
+  const { cartItems = [], setCartItems } = useContext(CartContext);
+
+
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.header}>Your Cart</Text>
+
+      <ScrollView
+        style={styles.scrollArea}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Empty Cart Message */}
+        {cartItems.length === 0 && (
+          <Text style={styles.emptyText}>
+            Your cart is empty 🛍️
+          </Text>
+        )}
+
+        {/* Cart Items */}
+        {cartItems.map((item) => (
+          <View key={item._id} style={styles.card}>
+            <Image
+              source={{ uri: item.image }}
+              style={styles.image}
+            />
+
+            <View style={{ flex: 1 }}>
+              <Text style={styles.name}>{item.name}</Text>
+              <Text style={styles.price}>
+                {Number(item.price).toFixed(2)}
+              </Text>
+
+              <View style={styles.quantityRow}>
+                <TouchableOpacity
+                  onPress={() => decreaseQuantity(item._id)}
+                >
+                  <Text style={styles.qtyBtn}>-</Text>
+                </TouchableOpacity>
+
+                <Text style={styles.qtyText}>
+                  {item.quantity}
+                </Text>
+
+                <TouchableOpacity
+                  onPress={() => increaseQuantity(item._id)}
+                >
+                  <Text style={styles.qtyBtn}>+</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              onPress={() => removeItem(item._id)}
+            >
+              <Text style={styles.delete}>✕</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+
+        {/* Order Summary */}
+        {cartItems.length > 0 && (
+          <View style={styles.summary}>
+            <Text style={styles.summaryTitle}>
+              Order Summary
+            </Text>
+
+            <View style={styles.summaryRow}>
+              <Text style={styles.label}>Subtotal</Text>
+              <Text style={styles.value}>
+                ₹{subtotal.toFixed(2)}
+              </Text>
+            </View>
+
+            <View style={styles.summaryRow}>
+              <Text style={styles.label}>
+                Discount (10%)
+              </Text>
+              <Text style={styles.value}>
+                -₹{discount.toFixed(2)}
+              </Text>
+            </View>
+
+            <View style={styles.summaryRow}>
+              <Text
+                style={[styles.label, { fontWeight: "700" }]}
+              >
+                Total
+              </Text>
+              <Text
+                style={[styles.value, { fontWeight: "700" }]}
+              >
+                ₹{total.toFixed(2)}
+              </Text>
+            </View>
+
+            <TouchableOpacity style={styles.checkoutBtn} onPress={() => navigation.navigate("deliveryAddressScreen", { totalAmount: total })}>
+              <Text style={styles.checkoutText}>
+                Proceed to Checkout
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </ScrollView>
+    </View>
+  );
+}

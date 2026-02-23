@@ -10,6 +10,7 @@ import Home from '../Screens/Home';
 import Categories from '../Screens/Categories';
 import Profile from '../Screens/profile';
 import Setting_screen from '../Screens/Settings';
+import ProductDetails from '../Screens/ProductDetails';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -26,7 +27,6 @@ export default function Navigation_tab() {
         <Stack.Screen name="Cat" component={Categories} />
         <Stack.Screen name="profile" component={Profile} />
         <Stack.Screen name="settings" component={Setting_screen} />
-        
       </Stack.Navigator>
   );
 }

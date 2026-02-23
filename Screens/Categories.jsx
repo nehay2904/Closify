@@ -19,31 +19,8 @@ export default function Categories() {
       image:
         "https://lh3.googleusercontent.com/aida-public/AB6AXuDjWkxxT-1EoMwcVFP0w3GZPEmu5Vc4mmhQDVkVG1GaYzB-ixLcrXzCxwifH_rEB-vR1mx-sI65kjrBIvXsyVqpOv2M_tTU7Cp7al9bDPuuYrHXblkGAKHp3BkgpkczlyFkQUifavQ47ugJj6_O9lxx1G-ueWGrDYeqARQ886Nl_stf5dWVZb8xnb_1f4GZCBkGYcDMuXBiwPJSZVFEC4x6BekgmsYfIpmnFRxCU3Nkwdm050635t2lAeVIB1R5xFuLwT1yTzQL43jY",
     },
-    {
-      name: "Tops",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuBkxjw2ZbQHr2RJ_8ztciMYXjnO2veJoGkz9vf_bUWmr78PP2CLWLnV_c6PR53EW_3L5Q4ziu5IDMXC_Yq7hcp61rDEVjeOvwnqGPEhS2DG3zyyYZA3naPAh2mDFImEF11O9WOJPBGTBw_RRnk3KmdKl6Q1R0Ay2F-oh9PE7hjECUwufxPHFSlurG_4N9rgWjRzWeW6JYmogGJdKVwUa24h3emszve-_JUcS2FzIAPBZdKha49u2Zp76GdIWCNEh3yxRzmRu5CAKKDp",
-    },
-    {
-      name: "Footwear",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuDZOWIu6Ynb7Kjf1nY6PXDximAQzU2WVIOGruNlxEG7bnkDzqUJfdSULdI00nGdV2OykeMzcSXjKGv85iAyMtvq6BmJi8XEs6WphbR2x0Hm9aM0zt3qIwffEP3phga2poG2XXZ5XdnKbLOnDq7J9gj5w85TDLuVjP0MGnvJCt5dOcHSsunx_lziZRj2uSazzU1OFD8REUe1-hhXC600NhjEx5axTT25kKIZ-bYNRD9vfCpm0PHK06xF73N-nbqrdZXhAebzUnX4lo_g",
-    },
-    {
-      name: "Accessories",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuBI53Fgw7NPaKZOB5qTWXPt-_u_jter9wGuuBMpkyoIwzrvX7TW5LYeIWtMd5LdrUDfuhc5MtocYs5SNs2UbqnNyq3fqHOQ2WuepQrAskYOUQL0Uj5Tz5CKiirlBMQvuEXgsariMW2rJ_GdhHCBLdqMCfyxjyilNxUvzUr74AW3r_3vonfbQ5FgWj591gSmSgCZ_iGFw5JBGbE8ABsShWqVYJ-B3oPlKQ5QWMgXAo43SmpguptuezWphtYy0BKlAaec17ejt1M0-JHU",
-    },
-    {
-      name: "Ethnic Wear",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuCWZDAo-6KIZxSJ0s0ziXQNlGu1zCCZcis-WE7pkLPXnUHFIk8fz0ulBFTEuNVehITfq7s9JDfTtU4w8NPq6Nl25IGY30hXClW5R4-dRAlZpx4COrYgU1T0sJOyEfkR8H4qlOBYWXpSj6cle-AJ-7dvRt0j8jYpP98_j3c-phXbSii-KMecJBig6QjQjHFLz0S8lejRpLsc3ImESzGo3VYi99Xmjw0EaB6zg7wqKD-1gU94uOgm7l0nZtjikdx2FpKk44lUg62FmmWb",
-    },
-    {
-      name: "Bags & Wallets",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuDwlp2VpPLAZXCkKIK47_K5EAAByzre1R8-SNKTWCbideQ9innVH5RPig6B_YjYRDAiZyHhftUHT3Lt6bSFv8EYOYSspHaeNCzL0_jX6yAMuQWyI6myBEPgxu0A0LtsRKl4nPXgPTGX2VVJYGRrhQ5G4U9dzSibAOiRb4aeQndWQDLEcQYq20ka-9bNiVEvrOZiUfWOZRu7DmlxAZYSrUjr2n4qb670hsv_l-c-RbWd8tWjhuSSCZOJxqbHr-7vz1vREwsoGg1puzpJ",
-    },
+   
+   
     {
       name: "New Arrivals",
       image:
@@ -61,13 +38,7 @@ export default function Categories() {
       <StatusBar barStyle="dark-content" backgroundColor="#f8f6f6" />
       {/* Top Header */}
       <View style={styles.header}>
-        <Text style={styles.logo}>Chic</Text>
-        <View style={styles.headerIcons}>
-          <MaterialIcons name="search" size={24} color="#4A4A4A" />
-          <MaterialIcons name="favorite-border" size={24} color="#4A4A4A" />
-        
-        </View>
-      </View>
+      <Text style={styles.logo}>Chic</Text>      </View>
 
       {/* Title */}
       <Text style={styles.title}>Shop by Category</Text>
@@ -105,6 +76,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     alignItems: "center",
     backgroundColor: Colors.bg,
+    justifyContent:'center'
   },
   logo: {
     fontSize: 20,
@@ -140,21 +112,22 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
   grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+    flexDirection: 'column',
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingBottom: 100,
+    paddingBottom: 100                                                                                       
   },
   card: {
-    width: "47%",
-    marginBottom: 16,
+    width: "90%",
+    marginHorizontal:16,
+    marginVertical:8
   },
   image: {
     width: "100%",
     aspectRatio: 1,
     borderRadius: 16,
-    marginBottom: 8,
+    height:170,
+    marginBottom:8
   },
   cardText: {
     textAlign: "center",
