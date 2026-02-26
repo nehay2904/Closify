@@ -1,5 +1,4 @@
-
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,12 +6,52 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
+import axios from "axios";
+import { CartContext } from "../Context/Cardcontext";
 
-import { CartContext } from "../Context/Cardcontext"; // make sure name is correct
-
-export default function ShoppingCart({navigation}) {
+export default function ShoppingCart({ navigation }) {
   const { cartItems = [], setCartItems } = useContext(CartContext);
+  const [loading, setLoading] = useState(true);
+
+  const userId = "698ed558a5249413d1783c1b";
+
+  useEffect(() => {
+    fetchCart();
+  }, []);
+
+  const fetchCart = async () => {
+    try {
+      const res = await axios.get(
+        `https://closify-server-3.onrender.com/cart/${userId}`
+      );
+
+      const { cart, products } = res.data;
+
+      const formattedCart = cart.map((item) => {
+        const product = products.find(
+          (p) => p._id === item.productId
+        );
+
+        return {
+          _id: product._id,
+          name: product.ProductName,
+          price: product.Price,
+          image: product.product_URL,
+          quantity: item.quantity,
+          size: item.size,
+          color: item.color,
+        };
+      });
+
+      setCartItems(formattedCart);
+      setLoading(false);
+    } catch (error) {
+      console.log("Cart fetch error:", error);
+      setLoading(false);
+    }
+  };
 
   const increaseQuantity = (_id) => {
     setCartItems((items) =>
@@ -34,10 +73,22 @@ export default function ShoppingCart({navigation}) {
     );
   };
 
-  const removeItem = (_id) => {
-    setCartItems((items) =>
-      items.filter((item) => item._id !== _id)
-    );
+  const removeItem = async (_id) => {
+    try {
+      await axios.post(
+        `https://closify-server-3.onrender.com/cart/remove`,
+        {
+          userId: userId,
+          productId: _id,
+        }
+      );
+
+      setCartItems((items) =>
+        items.filter((item) => item._id !== _id)
+      );
+    } catch (error) {
+      console.log("Remove cart error:", error);
+    }
   };
 
   const subtotal = cartItems.reduce(
@@ -49,64 +100,85 @@ export default function ShoppingCart({navigation}) {
   const discount = subtotal * 0.1;
   const total = subtotal - discount;
 
+  if (loading) {
+    return (
+      <View style={{ marginTop: 120 }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Your Cart</Text>
 
-      <ScrollView
-        style={styles.scrollArea}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Empty Cart Message */}
-        {cartItems.length === 0 && (
-          <Text style={styles.emptyText}>
-            Your cart is empty 🛍️
+      {/* EMPTY STATE */}
+      {cartItems.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyIcon}>🛒</Text>
+
+          <Text style={styles.emptyTitle}>
+            Ooh no! Your cart is empty
           </Text>
-        )}
 
-        {/* Cart Items */}
-        {cartItems.map((item) => (
-          <View key={item._id} style={styles.card}>
-            <Image
-              source={{ uri: item.image }}
-              style={styles.image}
-            />
+          <TouchableOpacity
+            style={styles.shopNowBtn}
+            onPress={() => navigation.navigate("Home")}
+          >
+            <Text style={styles.shopNowText}>
+              Start Shopping
+            </Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <ScrollView
+          style={styles.scrollArea}
+          showsVerticalScrollIndicator={false}
+        >
+          {cartItems.map((item) => (
+            <View key={item._id} style={styles.card}>
+              <Image
+                source={{ uri: item.image }}
+                style={styles.image}
+              />
 
-            <View style={{ flex: 1 }}>
-              <Text style={styles.name}>{item.name}</Text>
-              <Text style={styles.price}>
-                {Number(item.price).toFixed(2)}
-              </Text>
-
-              <View style={styles.quantityRow}>
-                <TouchableOpacity
-                  onPress={() => decreaseQuantity(item._id)}
-                >
-                  <Text style={styles.qtyBtn}>-</Text>
-                </TouchableOpacity>
-
-                <Text style={styles.qtyText}>
-                  {item.quantity}
+              <View style={{ flex: 1 }}>
+                <Text style={styles.name}>{item.name}</Text>
+                <Text style={styles.price}>
+                  ₹{Number(item.price).toFixed(2)}
                 </Text>
 
-                <TouchableOpacity
-                  onPress={() => increaseQuantity(item._id)}
-                >
-                  <Text style={styles.qtyBtn}>+</Text>
-                </TouchableOpacity>
+                <View style={styles.quantityRow}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      decreaseQuantity(item._id)
+                    }
+                  >
+                    <Text style={styles.qtyBtn}>-</Text>
+                  </TouchableOpacity>
+
+                  <Text style={styles.qtyText}>
+                    {item.quantity}
+                  </Text>
+
+                  <TouchableOpacity
+                    onPress={() =>
+                      increaseQuantity(item._id)
+                    }
+                  >
+                    <Text style={styles.qtyBtn}>+</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
+
+              <TouchableOpacity
+                onPress={() => removeItem(item._id)}
+              >
+                <Text style={styles.delete}>✕</Text>
+              </TouchableOpacity>
             </View>
+          ))}
 
-            <TouchableOpacity
-              onPress={() => removeItem(item._id)}
-            >
-              <Text style={styles.delete}>✕</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
-
-        {/* Order Summary */}
-        {cartItems.length > 0 && (
           <View style={styles.summary}>
             <Text style={styles.summaryTitle}>
               Order Summary
@@ -141,14 +213,25 @@ export default function ShoppingCart({navigation}) {
               </Text>
             </View>
 
-            <TouchableOpacity style={styles.checkoutBtn} onPress={() => navigation.navigate("deliveryAddressScreen", { totalAmount: total , cartItems: cartItems})}>
+            <TouchableOpacity
+              style={styles.checkoutBtn}
+              onPress={() =>
+                navigation.navigate(
+                  "deliveryAddressScreen",
+                  {
+                    totalAmount: total,
+                    cartItems: cartItems,
+                  }
+                )
+              }
+            >
               <Text style={styles.checkoutText}>
                 Proceed to Checkout
               </Text>
             </TouchableOpacity>
           </View>
-        )}
-      </ScrollView>
+        </ScrollView>
+      )}
     </View>
   );
 }
@@ -156,16 +239,48 @@ export default function ShoppingCart({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F1F8F5", // soft pastel green background
+    backgroundColor: "#F1F8F5",
     paddingTop: 60,
   },
   header: {
     fontSize: 26,
     fontWeight: "bold",
     textAlign: "left",
-    color: "#3D6655", // deep pastel green
+    color: "#3D6655",
     margin: 18,
   },
+
+  /* EMPTY STATE */
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  emptyIcon: {
+    fontSize: 100,
+    marginBottom: 20,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#3D6655",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  shopNowBtn: {
+    backgroundColor: "#A8D5BA",
+    paddingVertical: 14,
+    paddingHorizontal: 35,
+    borderRadius: 30,
+    elevation: 3,
+  },
+  shopNowText: {
+    color: "#2E4D3E",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+
   scrollArea: {
     paddingHorizontal: 16,
   },

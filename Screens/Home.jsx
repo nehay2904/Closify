@@ -45,7 +45,7 @@ export default function Home({navigation}) {
    const [data, setData] = useState([]);
     useEffect(() => {
     const fetchData = async () => {
-      const res = await axios.get("https://closify-server-3.onrender.com/products/trending");
+      const res = await axios.get("https://closify-server-3.onrender.com/products/women-dress");
       setData(res.data);
     };
     fetchData();
@@ -54,7 +54,7 @@ export default function Home({navigation}) {
     const [datas, setDatas] = useState([]);
     useEffect(() => {
     const fetchDatas = async () => {
-      const res = await axios.get("https://closify-server-3.onrender.com/products/editor_choice");
+      const res = await axios.get("https://closify-server-3.onrender.com/products/footwear");
       setDatas(res.data);
     };
     fetchDatas();

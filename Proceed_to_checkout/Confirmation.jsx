@@ -13,7 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
-export default function OrderConfirmationScreen() {
+export default function OrderConfirmationScreen({navigation}) {
   return (
     <SafeAreaView style={styles.container}>
       
@@ -63,28 +63,6 @@ export default function OrderConfirmationScreen() {
           <Text style={styles.referenceValue}>#NY-8829034</Text>
         </View>
 
-        {/* Product Preview Scroll */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={{ marginVertical: 20 }}
-        >
-          <Image
-            source={{
-              uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuAKuhrKW6s-gUpyQvWLhYxJPUijrAo-B6X_B-hE3oDLUKrpBiYrxzxowl44PTjO3AzD0JZZI8inZkY4T_l4rCHdNpQ4F-sQscRNOu4LD215wSZocX-XraV6-CCBAanAwHb3mpZmhGtXNKTvGZzYAaLcosJPrdwJEi-oEFU7my9FBUHRMScxH2MAfkFwjj8x2u-IgVeskAibqRUTaJrroWvUgk8E8-4_ShDjYS2XQaYALQQpV-Qbfxtqk_TJkqzZRE2iXJ2aV3PEOKfr",
-            }}
-            style={styles.previewImage}
-          />
-          <Image
-            source={{
-              uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuBjm3kKBp2dQzLeKLjEVBDp52jhV_OCbznoWRcGff3F1fmysUJoP5pMNWq0QnaRh9l-vpXqkhVsffuWpmG4bKZjG0fJrueTdX69UyTmUGrdr3TVlIqWLdkyFItoz5lPaxNcha35_xqzX_5uItwKX55Jhg6BgyaFTWBBERy3UCFXHDqoEdDrvlyVGP0g--DPRUaLdLgF5nmC3aRum3S8XcrQ6dBuLtun9-p4kI123c-u4_nxwWvcl6jdKIaAWUn7bHxpxu0TNFudALa6",
-            }}
-            style={styles.previewImage}
-          />
-          <View style={styles.moreBox}>
-            <Text style={styles.moreText}>+2</Text>
-          </View>
-        </ScrollView>
 
         {/* Delivery Box */}
         <View style={styles.deliveryCard}>
@@ -109,7 +87,7 @@ export default function OrderConfirmationScreen() {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.secondaryButton}>
+          <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.navigate("MainTabs")}>
             <Text style={styles.secondaryButtonText}>
               Continue Shopping
             </Text>

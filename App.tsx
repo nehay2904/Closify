@@ -16,6 +16,7 @@ import PaymentScreen from "./Proceed_to_checkout/PaymentMethod";
 import ReviewOrderScreen from "./Proceed_to_checkout/ReviewOrder";
 import OrderConfirmationScreen from "./Proceed_to_checkout/Confirmation";
 import { WishlistProvider } from "./Context/WishlistContext";
+import MyOrdersScreen from "./Proceed_to_checkout/MyOrdersScreen";
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
             <Stack.Screen name="paymentScreen" component={PaymentScreen} />
             <Stack.Screen name="reviewOrderScree" component={ReviewOrderScreen} />
             <Stack.Screen name="orderConfirmationScreen" component={OrderConfirmationScreen} />
+             <Stack.Screen name="myOrdersScreen" component={MyOrdersScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </WishlistProvider>

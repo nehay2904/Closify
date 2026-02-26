@@ -14,6 +14,12 @@ export default function Profile({navigation}) {
     };
     loadUser();
   }, []);
+  const logout = async () => {
+  await AsyncStorage.removeItem("token");
+  await AsyncStorage.removeItem("user");
+  navigation.replace("Login");
+};
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Scrollable content */}
@@ -51,12 +57,12 @@ export default function Profile({navigation}) {
 
         {/* Options */}
         {[
-          { icon: "local-mall", label: "My Orders" },
-          { icon: "favorite", label: "My Wishlist" },
-          { icon: "home", label: "Saved Addresses" },
-          { icon: "credit-card", label: "Payment Methods" },
-        ].map((item, index) => (
-          <TouchableOpacity key={index} style={styles.optionCard}>
+         { icon: "local-mall", label: "My Orders", screen: "myOrdersScreen" },
+         { icon: "favorite", label: "My Wishlist", screen: "Wishlist" },
+         { icon: "home", label: "Saved Addresses", screen: "SavedAddresses" },
+         { icon: "credit-card", label: "Payment Methods", screen: "PaymentMethods" },
+         ].map((item, index) => (
+          <TouchableOpacity key={index} style={styles.optionCard}  onPress={() => navigation.navigate(item.screen)} >
             <View style={styles.optionLeft}>
               <View style={styles.iconBox}>
                 <MaterialIcons name={item.icon} size={22} color="#333" />
@@ -70,7 +76,7 @@ export default function Profile({navigation}) {
         {/* Logout */}
         <TouchableOpacity style={styles.logoutBtn}  onPress={() => navigation.navigate("Login")}>
           <MaterialIcons name="logout" size={22} color="#888" />
-          <Text style={styles.logoutText} onPress={() => navigation.navigate("Login")}>Log Out</Text>
+          <Text style={styles.logoutText} onPress={logout}>Log Out</Text>
         </TouchableOpacity>
       </ScrollView>
 

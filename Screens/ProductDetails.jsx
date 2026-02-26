@@ -13,7 +13,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { CartContext } from "../Context/Cardcontext";
-import { WishlistContext } from "../Context/WishlistContext";
 
 const { width } = Dimensions.get("window");
 
@@ -25,13 +24,13 @@ export default function ProductDetails({ route, navigation }) {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const { addToCart } = useContext(CartContext);
-   const { addToWishlist, removeFromWishlist, wishlist } = useContext(WishlistContext);
 
   const id = route?.params?.id;
 
-  useEffect(() => {
-    if (!id) return;
+  const userId = "698ed558a5249413d1783c1b";
 
+  // Fetch product
+  useEffect(() => {
     const fetchProduct = async () => {
       try {
         const res = await axios.get(
@@ -39,25 +38,87 @@ export default function ProductDetails({ route, navigation }) {
         );
         setProduct(res.data);
       } catch (err) {
-        console.log("ERROR:", err);
+        console.log("Product error:", err);
       }
     };
 
-    fetchProduct();
+    if (id) fetchProduct();
   }, [id]);
 
-  const handleAddToCart = () => {
-    addToCart({
-      _id: product._id,
-      name: product.Description,
-      price: Number(product.Price),
-      image: product.product_URL,
-      quantity: 1,
-      selectedSize,
-      selectedColor,
-    });
+  // Check wishlist
+  useEffect(() => {
+    const checkWishlist = async () => {
+      try {
+        const res = await axios.get(
+          `https://closify-server-3.onrender.com/wishlist/${userId}`
+        );
 
-    setIsAdded(true);
+        const exists = res.data.some((item) => item._id === id);
+        setIsFavorite(exists);
+      } catch (err) {
+        console.log("Wishlist check error:", err);
+      }
+    };
+
+    if (id) checkWishlist();
+  }, [id]);
+
+  // ADD TO CART (Backend + Frontend)
+  const handleAddToCart = async () => {
+    try {
+      await axios.post(
+        "https://closify-server-3.onrender.com/cart/add",
+        {
+          userId,
+          productId: product._id,
+          selectedSize,
+          selectedColor,
+          quantity: 1,
+        }
+      );
+
+      // local cart
+      addToCart({
+        _id: product._id,
+        name: product.ProductName,
+        price: Number(product.Price),
+        image: product.product_URL,
+        quantity: 1,
+        selectedSize,
+        selectedColor,
+      });
+
+      setIsAdded(true);
+    } catch (error) {
+      console.log("Cart error:", error);
+    }
+  };
+
+  // Wishlist
+  const handleWishlist = async () => {
+    try {
+      if (isFavorite) {
+        await axios.post(
+          "https://closify-server-3.onrender.com/wishlist/remove",
+          {
+            userId,
+            productId: product._id,
+          }
+        );
+        setIsFavorite(false);
+      } else {
+        await axios.post(
+          "https://closify-server-3.onrender.com/wishlist/add",
+          {
+            userId,
+            productId: product._id,
+          }
+        );
+        setIsFavorite(true);
+      }
+    } catch (error) {
+      console.log("Wishlist error:", error);
+    }
   };
 
   if (!product) {
@@ -67,23 +128,7 @@ export default function ProductDetails({ route, navigation }) {
       </View>
     );
   }
-const handleWishlist = () => {
-  const item = {
-    _id: product._id,
-    Brand: product.Brand,
-    Description: product.Description,
-    Price: product.Price,
-    product_URL: product.product_URL,
-  };
 
-  if (isFavorite) {
-    removeFromWishlist(product._id);
-    setIsFavorite(false);
-  } else {
-    addToWishlist(item);
-    setIsFavorite(true);
-  }
-};
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -103,79 +148,25 @@ const handleWishlist = () => {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Image
-          source={{ uri: product.product_URL }}
-          style={styles.image}
-        />
+        <Image source={{ uri: product.product_URL }} style={styles.image} />
 
         <View style={styles.info}>
           <Text style={styles.brand}>
-            {product.Brand || "Chic & Co."}
+            {product.BrandName || "Chic & Co."}
           </Text>
 
           <View style={styles.titleRow}>
             <Text style={styles.title}>
-              {product.Description}
+              {product.ProductName}
             </Text>
             <Text style={styles.price}>
               ₹{product.Price}
             </Text>
           </View>
 
-          {/* Color */}
-          {product.colors && (
-            <>
-              <Text style={styles.sectionTitle}>Color</Text>
-              <View style={styles.colorRow}>
-                {product.colors.map((color) => (
-                  <TouchableOpacity
-                    key={color}
-                    onPress={() => setSelectedColor(color)}
-                    style={[
-                      styles.colorCircle,
-                      { backgroundColor: color },
-                      selectedColor === color &&
-                        styles.selectedColor,
-                    ]}
-                  />
-                ))}
-              </View>
-            </>
-          )}
-
-          {/* Size */}
-          {product.sizes && (
-            <>
-              <Text style={styles.sectionTitle}>Size</Text>
-              <View style={styles.sizeRow}>
-                {product.sizes.map((size) => (
-                  <TouchableOpacity
-                    key={size}
-                    onPress={() => setSelectedSize(size)}
-                    style={[
-                      styles.sizeButton,
-                      selectedSize === size &&
-                        styles.selectedSizeButton,
-                    ]}
-                  >
-                    <Text
-                      style={
-                        selectedSize === size
-                          ? styles.selectedSizeText
-                          : styles.sizeText
-                      }
-                    >
-                      {size}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </>
-          )}
-
           <Text style={styles.sectionTitle}>Product Details</Text>
           <Text style={styles.description}>
-            {product.details || "No additional details available."}
+            {product.Description || "No additional details available."}
           </Text>
         </View>
       </ScrollView>
@@ -184,16 +175,17 @@ const handleWishlist = () => {
       <View style={styles.footer}>
         {!isAdded ? (
           <View style={styles.footerRow}>
-           <TouchableOpacity
-  style={styles.heartButton}
-  onPress={handleWishlist}
->
-  <Ionicons
-    name={isFavorite ? "heart" : "heart-outline"}
-    size={24}
-    color={isFavorite ? "red" : "black"}
-  />
-</TouchableOpacity>
+            <TouchableOpacity
+              style={styles.heartButton}
+              onPress={handleWishlist}
+            >
+              <Ionicons
+                name={isFavorite ? "heart" : "heart-outline"}
+                size={24}
+                color={isFavorite ? "red" : "black"}
+              />
+            </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.cartButton}
               onPress={handleAddToCart}
@@ -203,10 +195,7 @@ const handleWishlist = () => {
           </View>
         ) : (
           <View style={styles.afterAddContainer}>
-            <TouchableOpacity
-              style={styles.addedBtn}
-              disabled
-            >
+            <TouchableOpacity style={styles.addedBtn} disabled>
               <Text style={styles.addedText}>Added ✓</Text>
             </TouchableOpacity>
 
@@ -214,9 +203,8 @@ const handleWishlist = () => {
               style={styles.goToCartBtn}
               onPress={() =>
                 navigation.navigate("MainTabs", {
-  screen: "shopping-bag",
-})
-
+                  screen: "shopping-bag",
+                })
               }
             >
               <Text style={styles.goToCartText}>Go to Cart</Text>

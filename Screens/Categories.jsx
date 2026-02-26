@@ -1,161 +1,149 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
-  ImageBackground,
+  FlatList,
+  Image,
   TouchableOpacity,
-  StatusBar,
+  Dimensions,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Colors from "../constants/colors";
+import axios from "axios";
+import { BlurView } from "expo-blur";
 
-export default function Categories() {
-  const categories = [
-    {
-      name: "Dresses",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuDjWkxxT-1EoMwcVFP0w3GZPEmu5Vc4mmhQDVkVG1GaYzB-ixLcrXzCxwifH_rEB-vR1mx-sI65kjrBIvXsyVqpOv2M_tTU7Cp7al9bDPuuYrHXblkGAKHp3BkgpkczlyFkQUifavQ47ugJj6_O9lxx1G-ueWGrDYeqARQ886Nl_stf5dWVZb8xnb_1f4GZCBkGYcDMuXBiwPJSZVFEC4x6BekgmsYfIpmnFRxCU3Nkwdm050635t2lAeVIB1R5xFuLwT1yTzQL43jY",
-    },
-   
-   
-    {
-      name: "New Arrivals",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuBdSdtntuL3QN5eomFYCmamaXsgLgGBJEsTJV9x2mo9WPA720nZzHPEqNrd-_sHz2TAnTYky26vHyNStb-revb_P170uP-y2fxTFHvunc-DAWSqRTI-zBRzxezGIMTMSQiON-1fiI3_zTzX6FhGrFy9OECtk_8yKYbOcFV4RwwwydtfaN356R6Ei9XZGSENEE-jNaLGEJzIe8xmhPxxyNE2vE5ip5d3V74yfKoKBnyntcXk7_DAPD4lSowqaKZx0TWBOHDMSPQgajFN",
-    },
-    {
-      name: "Sale",
-      image:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuCSCPUKPvri6MAI6xgEByumkEMNCi49ElXfuVizb1m7ZMlPKy8FwOFN-dGjSlC7IQ_JG7I3yOfZRa0yzolAoIvUr4i6c2aE878IYRQKwtcC5qUgmwJiIq5rE3IPnd44DP7z-OWxWBF0gIys756nrXC40XA1S-H6U3ZU6bnX4woKsuT7WENbjOkNbgCwUwXNKifBFCtkZcsVTv24xy9aIo2_GWMapnz6AWuoWfMnITMKEfTIXz68idjI_9nZ1001huoq5XtQcgvsIOf3",
-    },
-  ];
+const { width } = Dimensions.get("window");
+
+export default function Categories({ navigation }) {
+  const [selected, setSelected] = useState("dresses");
+  const [dresses, setDresses] = useState([]);
+  const [bags, setBags] = useState([]);
+  const [footwear, setFootwear] = useState([]);
+
+  useEffect(() => {
+    axios.get("https://closify-server-3.onrender.com/products/women-dress")
+      .then(res => setDresses(res.data));
+
+    axios.get("https://closify-server-3.onrender.com/products/bags")
+      .then(res => setBags(res.data));
+
+    axios.get("https://closify-server-3.onrender.com/products/footwear")
+      .then(res => setFootwear(res.data));
+  }, []);
+
+  const getData = () => {
+    if (selected === "dresses") return dresses;
+    if (selected === "bags") return bags;
+    return footwear;
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#f8f6f6" />
-      {/* Top Header */}
-      <View style={styles.header}>
-      <Text style={styles.logo}>Chic</Text>      </View>
 
-      {/* Title */}
-      <Text style={styles.title}>Shop by Category</Text>
+      {/* TITLE */}
+      <Text style={styles.pageTitle}>Categories</Text>
 
-      {/* Category Grid */}
-      <ScrollView contentContainerStyle={styles.grid}>
-        {categories.map((item, index) => (
-          <View key={index} style={styles.card}>
-            <ImageBackground
-              source={{ uri: item.image }}
-              style={styles.image}
-              imageStyle={{ borderRadius: 16 }}
-            />
-            <Text style={styles.cardText}>{item.name}</Text>
-          </View>
-        ))}
-      </ScrollView>
+      {/* GLASS TABS */}
+      <BlurView intensity={40} tint="light" style={styles.tabsGlass}>
+        <TabText title="Dresses" active={selected==="dresses"} onPress={() => setSelected("dresses")} />
+        <TabText title="Bags" active={selected==="bags"} onPress={() => setSelected("bags")} />
+        <TabText title="Footwear" active={selected==="footwear"} onPress={() => setSelected("footwear")} />
+      </BlurView>
 
-     
+      {/* PRODUCT GRID */}
+      <FlatList
+        data={getData()}
+        numColumns={2}
+        keyExtractor={(item) => item._id}
+        contentContainerStyle={{ padding: 14 }}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => navigation.navigate("productDetails", { id: item._id })}
+          >
+            <Image source={{ uri: item.product_URL }} style={styles.image} />
+            <Text numberOfLines={1} style={styles.name}>{item.Description}</Text>
+            <Text style={styles.price}>{item.Price}</Text>
+          </TouchableOpacity>
+        )}
+      />
     </SafeAreaView>
   );
 }
 
-
+/* TEXT TAB */
+const TabText = ({ title, active, onPress }) => (
+  <TouchableOpacity onPress={onPress}>
+    <Text style={[styles.tabText, active && styles.activeTab]}>{title}</Text>
+  </TouchableOpacity>
+);
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.bg,
+    backgroundColor: "#F7F9F8",
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    alignItems: "center",
-    backgroundColor: Colors.bg,
-    justifyContent:'center'
-  },
-  logo: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: Colors.primary,
-  },
-  headerIcons: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-  },
-  badge: {
-    position: "absolute",
-    top: -4,
-    right: -8,
-    backgroundColor: "#305347ff",
-    borderRadius: 8,
-    width: 16,
-    height: 16,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  badgeText: {
-    color: "white",
-    fontSize: 10,
-    fontWeight: "bold",
-  },
-  title: {
+
+  pageTitle: {
     fontSize: 28,
-    fontWeight: "bold",
-    color: "#4a4a4aff",
-    margin: 12,
-    marginHorizontal: 16,
+    fontWeight: "700",
+    marginLeft: 20,
+    marginTop: 10,
+    letterSpacing: 0.5,
+    color: "#1E2925",
   },
-  grid: {
-    flexDirection: 'column',
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingBottom: 100                                                                                       
-  },
-  card: {
-    width: "90%",
-    marginHorizontal:16,
-    marginVertical:8
-  },
-  image: {
-    width: "100%",
-    aspectRatio: 1,
-    borderRadius: 16,
-    height:170,
-    marginBottom:8
-  },
-  cardText: {
-    textAlign: "center",
-    fontSize: 16,
-    color: "#4a4a4aff",
-    fontWeight: "500",
-  },
-  navbar: {
+
+  /* Glass Tabs */
+  tabsGlass: {
     flexDirection: "row",
     justifyContent: "space-around",
-    borderTopWidth: 1,
-    borderColor: "#ddddddff",
-    backgroundColor: "#f6f8f7ff",
-    paddingVertical: 8,
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
+    margin: 15,
+    paddingVertical: 10,
+    borderRadius: 25,
+    overflow: "hidden",
+    backgroundColor: "rgba(255,255,255,0.3)",
   },
-  navItem: {
-    alignItems: "center",
+
+  tabText: {
+    fontSize: 16,
+    color: "#678177",
+    fontWeight: "500",
   },
-  navLabel: {
-    fontSize: 12,
-    color: "#61897bff",
+
+  activeTab: {
+    color: "#1E2925",
+    fontWeight: "700",
+    textDecorationLine: "underline",
   },
-  navLabelActive: {
+
+  /* Product Cards */
+  card: {
+    width: width / 2 - 22,
+    margin: 8,
+    borderRadius: 20,
+    backgroundColor: "#fff",
+    padding: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+
+  image: {
+    width: "100%",
+    height: 190,
+    borderRadius: 16,
+  },
+
+  name: {
+    fontSize: 13,
+    marginTop: 6,
+    fontWeight: "500",
+  },
+
+  price: {
+    fontSize: 14,
     fontWeight: "bold",
-    color: "#b8f9d7ff",
+    marginTop: 3,
   },
 });

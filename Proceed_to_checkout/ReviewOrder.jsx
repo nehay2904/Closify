@@ -1,32 +1,63 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   View,
   Text,
-  StyleSheet,
-  ScrollView,
   Image,
-  TouchableOpacity
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  Alert,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { MaterialIcons } from "@expo/vector-icons";
+import axios from "axios";
+import { CartContext } from "../Context/Cardcontext";
 
 export default function ReviewOrderScreen({ navigation, route }) {
-
-  const { 
-    cartItems = [], 
-    addressData, 
-    totalAmount = 0, 
-    paymentMethod 
+  const {
+    cartItems = [],
+    addressData,
+    totalAmount = 0,
+    paymentMethod,
   } = route.params || {};
 
-  const grandTotal = totalAmount; // ✅ already discounted from cart
+  const { setCartItems } = useContext(CartContext);
+
+  const grandTotal = totalAmount;
+
+  const userId = "698ed558a5249413d1783c1b";
+
+  const placeOrder = async () => {
+    try {
+      for (let item of cartItems) {
+        await axios.post(
+          "https://closify-server-3.onrender.com/order/place",
+          {
+            userId: userId,
+            productId: item._id,
+            quantity: item.quantity,
+            price: item.price,
+          }
+        );
+      }
+
+      // clear cart
+      setCartItems([]);
+
+      Alert.alert("Success", "Order placed successfully");
+
+      navigation.navigate("orderConfirmationScreen");
+    } catch (error) {
+      console.log("Order error:", error);
+      Alert.alert("Error", "Failed to place order");
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <MaterialIcons name="arrow-back-ios" size={22} color="#2d4a3e" />
         </TouchableOpacity>
 
@@ -35,8 +66,6 @@ export default function ReviewOrderScreen({ navigation, route }) {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-
-        {/* Bag Details */}
         <Text style={styles.sectionTitle}>Bag Details</Text>
 
         {cartItems.map((item) => (
@@ -54,46 +83,33 @@ export default function ReviewOrderScreen({ navigation, route }) {
           </View>
         ))}
 
-        {/* Delivery */}
         <Text style={styles.sectionTitle}>Delivery To</Text>
         <Text style={styles.deliveryLabel}>{addressData?.type}</Text>
         <Text style={styles.deliveryText}>{addressData?.address}</Text>
         <Text>{addressData?.phone}</Text>
 
-        {/* Payment */}
         <Text style={styles.sectionTitle}>Payment Method</Text>
         <Text>{paymentMethod}</Text>
 
-        {/* Total Summary */}
         <Text style={styles.sectionTitle}>Total Summary</Text>
 
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>Total Amount</Text>
-          <Text style={styles.totalAmount}>
-            ₹{grandTotal.toFixed(2)}
-          </Text>
+          <Text style={styles.totalAmount}>₹{grandTotal.toFixed(2)}</Text>
         </View>
 
         <View style={styles.totalRow}>
           <Text style={styles.totalLabel}>Grand Total</Text>
-          <Text style={styles.totalAmount}>
-            ₹{grandTotal.toFixed(2)}
-          </Text>
+          <Text style={styles.totalAmount}>₹{grandTotal.toFixed(2)}</Text>
         </View>
-
       </ScrollView>
 
-      {/* Footer */}
       <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.payButton}
-          onPress={() => navigation.navigate("orderConfirmationScreen")}
-        >
+        <TouchableOpacity style={styles.payButton} onPress={placeOrder}>
           <Text style={styles.payText}>Confirm & Pay</Text>
+
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Text style={styles.payAmount}>
-              ₹{grandTotal.toFixed(2)}
-            </Text>
+            <Text style={styles.payAmount}>₹{grandTotal.toFixed(2)}</Text>
             <MaterialIcons
               name="arrow-forward"
               size={20}
@@ -103,11 +119,9 @@ export default function ReviewOrderScreen({ navigation, route }) {
           </View>
         </TouchableOpacity>
       </View>
-
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
