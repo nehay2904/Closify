@@ -215,5 +215,7 @@ const styles = StyleSheet.create({
   date: {
     fontSize: 11,
     color: "#888",
-  },
+  }
 });
+
+// code is completed
