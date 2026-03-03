@@ -34,7 +34,7 @@ export default function ChicModernLaunchScreen({ navigation }) {
     // Navigate after 2 seconds
     const timer = setTimeout(() => {
       navigation.replace("Login");
-    }, 3000);
+    }, 4000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -53,7 +53,7 @@ export default function ChicModernLaunchScreen({ navigation }) {
       <View style={styles.rightSide}>
         <ImageBackground
           source={{
-            uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuAbD-NeusCgDEsYhKscZOb5m9mgt1c_N68E4Bi5kOCErmIkxj5B6vVRpA3qWdEOJ7zchNr__Ucjcc3eRu1DdxJrQEYcrVjwTp7zQortKa-xUG2KTrp-mYdieY9_4I0UgA8W19LatbGuIEGsOHHdYdLmIpXm3Z_lb99zdewHeS0sMNvZBGru_I6QKHSO97nfIPwVrwXc9a-lcdShvDDVV3R4t-N-823Ij1FTsZlMsOHtmTu3bET7BX1190ES3iqyj4V4abtApDfSBazO",
+            uri: "https://i.pinimg.com/736x/12/26/23/1226235683655c32f8869f4b212bebd3.jpg",
           }}
           style={styles.image}
         >

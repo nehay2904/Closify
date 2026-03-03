@@ -25,33 +25,29 @@ export default function ReviewOrderScreen({ navigation, route }) {
 
   const grandTotal = totalAmount;
 
-  const userId = "698ed558a5249413d1783c1b";
+const userId = "69a6c3ebea0da2f10f658bec";
+// 
+const placeOrder = async () => {
+  try {
+    const orderData = {
+      userId,
+      products: cartItems,   // 🔥 IMPORTANT
+      totalAmount,
+    };
 
-  const placeOrder = async () => {
-    try {
-      for (let item of cartItems) {
-        await axios.post(
-          "https://closify-server-3.onrender.com/order/place",
-          {
-            userId: userId,
-            productId: item._id,
-            quantity: item.quantity,
-            price: item.price,
-          }
-        );
-      }
+    console.log("Sending Order:", orderData);
 
-      // clear cart
-      setCartItems([]);
+    const res = await axios.post(
+      "https://closify-server-3.onrender.com/order/place",
+      orderData
+    );
 
-      Alert.alert("Success", "Order placed successfully");
-
-      navigation.navigate("orderConfirmationScreen");
-    } catch (error) {
-      console.log("Order error:", error);
-      Alert.alert("Error", "Failed to place order");
-    }
-  };
+    console.log("Order success:", res.data);
+     navigation.navigate("orderConfirmationScreen");
+  } catch (error) {
+    console.log("Order error:", error.response?.data || error.message);
+  }
+};
 
   return (
     <SafeAreaView style={styles.container}>

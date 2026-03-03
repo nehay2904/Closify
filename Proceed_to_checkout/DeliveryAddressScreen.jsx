@@ -1,28 +1,56 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
+  SafeAreaView,
   View,
   Text,
+  TouchableOpacity,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
-  Image,
+  Alert,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function DeliveryAddressScreen({ navigation, route }) {
-  const [selected, setSelected] = useState("home");
   const { totalAmount, cartItems } = route.params;
 
-  // ✅ ADD THIS OBJECT HERE (before return)
-  const addressData = {
-    type: selected,
-    name: "Neha Yednurwar",
-    address:
-      selected === "home"
-        ? "FH1 savitri nagar , urja nagar colony, Raigarh 496107"
-        : "Qtr no 21/6 sasti wcl colony, rajura 442905",
-    phone: "9370672015",
+  const [addresses, setAddresses] = useState([]);
+  const [selected, setSelected] = useState(null);
+
+  const userId = "12345"; // ⚠️ MUST match the one used in AddAddressScreen
+
+  // ✅ Refresh every time screen comes into focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      fetchAddresses();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
+  // ✅ Fetch Addresses
+  const fetchAddresses = async () => {
+    try {
+      const response = await fetch(
+        `https://closify-server-3.onrender.com/address/${userId}`
+      );
+
+      const data = await response.json();
+
+      setAddresses(data);
+
+      // ✅ Auto select first address
+      if (data.length > 0) {
+        setSelected(data[0]._id);
+      }
+    } catch (error) {
+      console.log("Fetch Error:", error);
+    }
   };
+
+  const selectedAddress = addresses.find(
+    (item) => item._id === selected
+  );
+
+  const addressData = selectedAddress || {};
 
   return (
     <SafeAreaView style={styles.container}>
@@ -41,92 +69,78 @@ export default function DeliveryAddressScreen({ navigation, route }) {
           <View style={styles.inactiveBar} />
         </View>
 
-        {/* Section Title */}
+        {/* Section */}
         <View style={styles.sectionRow}>
           <Text style={styles.sectionTitle}>YOUR ADDRESSES</Text>
-          <Text style={styles.savedText}>2 SAVED</Text>
+          <Text style={styles.savedText}>
+            {addresses.length} SAVED
+          </Text>
         </View>
 
-        {/* Address Card 1 */}
+        {/* Address List */}
+        {addresses.length === 0 ? (
+          <Text style={{ textAlign: "center", marginTop: 20 }}>
+            No addresses found
+          </Text>
+        ) : (
+          addresses.map((item) => (
+            <TouchableOpacity
+              key={item._id}
+              style={[
+                styles.card,
+                selected === item._id && styles.selectedCard,
+              ]}
+              onPress={() => setSelected(item._id)}
+            >
+              <View style={styles.cardHeader}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.name}>{item.name}</Text>
+                  <Text style={styles.address}>{item.address}</Text>
+                  <Text style={styles.phone}>{item.phone}</Text>
+                </View>
+
+                <View style={styles.radioOuter}>
+                  {selected === item._id && (
+                    <View style={styles.radioInner} />
+                  )}
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))
+        )}
+
+        {/* Add Address */}
         <TouchableOpacity
-          style={[
-            styles.card,
-            selected === "home" && styles.selectedCard,
-          ]}
-          onPress={() => setSelected("home")}
+          style={styles.addBtn}
+          onPress={() => navigation.navigate("AddAddressScreen")}
         >
-          <View style={styles.cardHeader}>
-            <View>
-              <Text style={styles.name}>Neha Yednurwar</Text>
-              <Text style={styles.address}>
-                FH1 savitri nagar , urja nagar colony{"\n"}
-                Raigarh 496107
-              </Text>
-            </View>
-
-            <View style={styles.radioOuter}>
-              {selected === "home" && <View style={styles.radioInner} />}
-            </View>
-          </View>
-
-          <Text style={styles.phone}>9370672015</Text>
-        </TouchableOpacity>
-
-        {/* Address Card 2 */}
-        <TouchableOpacity
-          style={[
-            styles.card,
-            selected === "office" && styles.selectedCard,
-          ]}
-          onPress={() => setSelected("office")}
-        >
-          <View style={styles.cardHeader}>
-            <View>
-              <Text style={styles.name}>Neha Yednurwar</Text>
-              <Text style={styles.address}>
-                Qtr no 21/6 sasti wcl colony{"\n"}
-                rajura 442905
-              </Text>
-            </View>
-
-            <View style={styles.radioOuter}>
-              {selected === "office" && <View style={styles.radioInner} />}
-            </View>
-          </View>
-
-          <Text style={styles.phone}>9370672015</Text>
-        </TouchableOpacity>
-
-        {/* Add Address Button */}
-        <TouchableOpacity style={styles.addBtn}>
           <Text style={styles.addText}>+ Add New Address</Text>
         </TouchableOpacity>
-
-        {/* Map Image */}
-        <Image
-          source={{
-            uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuA18P1ZoMDZ4YvUqVpuH5eALzi95f22VkNe-bnNKjFfsn271oOmtg-qTghOG7XqhRvhhG-mUJRLW1EeudzdnMDKLmVQY0V7BlI250n5U2zZFfEGSpAgWpl2_Y2QWojRh-Jjpd81ZMLwNMT3B0A817eFctoj-3M8_VF0PshvsvIDNH5dOVDRymtk3Q-X4n-uVP-CaM_9bOvZ0exzZZQDwA5pW7_3mztosaSZeRPzUZjAbhcgpuAhER1TXBMNyUoZZjrk-mfAzvvhH59W",
-          }}
-          style={styles.map}
-        />
       </ScrollView>
 
       {/* Footer */}
       <View style={styles.footer}>
         <View>
           <Text style={styles.summaryLabel}>Order Summary</Text>
-          <Text style={styles.price}>₹{totalAmount?.toFixed(2)}</Text>
+          <Text style={styles.price}>
+            ₹{totalAmount?.toFixed(2)}
+          </Text>
         </View>
 
         <TouchableOpacity
           style={styles.deliverBtn}
-          onPress={() =>
+          onPress={() => {
+            if (!selectedAddress) {
+              Alert.alert("Error", "Please select an address");
+              return;
+            }
+
             navigation.navigate("paymentScreen", {
               totalAmount,
               cartItems,
-              addressData, // ✅ now defined properly
-            })
-          }
+              addressData,
+            });
+          }}
         >
           <Text style={styles.deliverText}>
             DELIVER TO THIS ADDRESS →
@@ -137,146 +151,135 @@ export default function DeliveryAddressScreen({ navigation, route }) {
   );
 }
 
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F8FAFB",
-  },
+  container: { flex: 1, backgroundColor: "#fff" },
+
+  scroll: { padding: 20 },
+
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    padding: 16,
-    alignItems: "center",
+    padding: 20,
   },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  headerBtn: {
-    fontSize: 18,
-  },
-  scroll: {
-    padding: 16,
-  },
+
+  headerBtn: { fontSize: 18 },
+  headerTitle: { fontSize: 18, fontWeight: "bold" },
+
   progressRow: {
     flexDirection: "row",
-    justifyContent: "center",
     marginBottom: 20,
   },
+
   activeBar: {
-    width: 40,
+    flex: 1,
     height: 4,
-    backgroundColor: "#A5D6A7",
-    marginHorizontal: 4,
-    borderRadius: 4,
+    backgroundColor: "black",
+    marginRight: 5,
   },
+
   inactiveBar: {
-    width: 40,
+    flex: 1,
     height: 4,
-    backgroundColor: "#E0E0E0",
-    marginHorizontal: 4,
-    borderRadius: 4,
+    backgroundColor: "#ddd",
   },
+
   sectionRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 12,
+    marginBottom: 15,
   },
-  sectionTitle: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#888",
-  },
-  savedText: {
-    fontSize: 12,
-    color: "#4CAF50",
-    fontWeight: "600",
-  },
+
+  sectionTitle: { fontWeight: "bold" },
+  savedText: { color: "gray" },
+
   card: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 16,
-    marginBottom: 16,
     borderWidth: 1,
-    borderColor: "#eee",
+    borderColor: "#ddd",
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
   },
+
   selectedCard: {
-    borderColor: "#E2B49A",
+    borderColor: "black",
+    borderWidth: 2,
   },
+
   cardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-  },
-  name: {
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  address: {
-    color: "#666",
-    fontSize: 13,
-  },
-  phone: {
-    marginTop: 10,
-    color: "#888",
-  },
-  radioOuter: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: "#ccc",
-    justifyContent: "center",
     alignItems: "center",
   },
+
+  name: {
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+
+  address: {
+    color: "gray",
+    marginBottom: 5,
+  },
+
+  phone: {
+    marginTop: 5,
+  },
+
+  radioOuter: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: "black",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
   radioInner: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#E2B49A",
+    backgroundColor: "black",
   },
+
   addBtn: {
-    padding: 16,
+    padding: 15,
     borderWidth: 1,
     borderStyle: "dashed",
-    borderColor: "#ccc",
-    borderRadius: 16,
+    borderRadius: 10,
     alignItems: "center",
-    marginBottom: 20,
+    marginTop: 10,
   },
+
   addText: {
-    color: "#4CAF50",
-    fontWeight: "600",
+    fontWeight: "bold",
   },
-  map: {
-    width: "100%",
-    height: 150,
-    borderRadius: 16,
-    marginBottom: 20,
-  },
+
   footer: {
-    padding: 16,
+    padding: 20,
     borderTopWidth: 1,
     borderColor: "#eee",
-    backgroundColor: "#fff",
-  },
-  summaryLabel: {
-    fontSize: 12,
-    color: "#888",
-  },
-  price: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 10,
-  },
-  deliverBtn: {
-    backgroundColor: "#A5D6A7",
-    padding: 14,
-    borderRadius: 30,
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
   },
+
+  summaryLabel: { color: "gray" },
+
+  price: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+
+  deliverBtn: {
+    backgroundColor: "black",
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+  },
+
   deliverText: {
-    color: "#fff",
-    fontWeight: "700",
+    color: "white",
+    fontWeight: "bold",
   },
 });

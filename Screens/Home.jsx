@@ -1,4 +1,3 @@
-// App.js
 import React, { useState, useEffect } from "react";
 import {
   StatusBar,
@@ -9,28 +8,23 @@ import {
   ImageBackground,
   TouchableOpacity,
   Dimensions,
-  FlatList,
   Image,
   Platform,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons"; // expo install @expo/vector-icons
+import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Colors from "../constants/colors";
+import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
 import axios from "axios";
 
 const { width } = Dimensions.get("window");
 
 const COLORS = {
-  primary: "#A8D8C2",
-  primarySubtle: "#E6F4EE",
-  secondary: "#70A08D",
-  backgroundLight: "#F7F9F8",
-  backgroundDark: "#1A2420",
-  textLight: "#1E2925",
-  textDark: "#F0F5F3",
-  mutedLight: "#678177",
-  mutedDark: "#A0B5AD",
-  rosegold: "#E3C8C1",
+  background: "#F8F5F2",
+  gold: "#C6A75E",
+  textDark: "#2E2A27",
+  muted: "#8E8681",
+  white: "#FFFFFF",
 };
 
 const heroImage =
@@ -39,154 +33,151 @@ const heroImage =
 const newArrivalImage =
   "https://assets.newme.asia/wp-content/uploads/2024/07/2812134426390f5a/NM-PRC-74-DRS-24-JUL-7789-WHITE(1).webp";
 
+export default function Home({ navigation }) {
+  const [dresses, setDresses] = useState([]);
+  const [shoes, setShoes] = useState([]);
 
-
-export default function Home({navigation}) {
-   const [data, setData] = useState([]);
-    useEffect(() => {
-    const fetchData = async () => {
-      const res = await axios.get("https://closify-server-3.onrender.com/products/women-dress");
-      setData(res.data);
+  useEffect(() => {
+    const fetchDresses = async () => {
+      const res = await axios.get(
+        "https://closify-server-3.onrender.com/products/category/Women%20Dress"
+      );
+      setDresses(res.data);
     };
-    fetchData();
+
+    const fetchShoes = async () => {
+      const res = await axios.get(
+        "https://closify-server-3.onrender.com/products/category/FOOTWEAR"
+      );
+      setShoes(res.data);
+    };
+
+    fetchDresses();
+    fetchShoes();
   }, []);
 
-    const [datas, setDatas] = useState([]);
-    useEffect(() => {
-    const fetchDatas = async () => {
-      const res = await axios.get("https://closify-server-3.onrender.com/products/footwear");
-      setDatas(res.data);
-    };
-    fetchDatas();
-  }, []);
- 
- 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: COLORS.backgroundLight }]}>
-      <StatusBar barStyle="dark-content" translucent={false} />
+    <SafeAreaView style={styles.safe}>
+      <StatusBar barStyle="dark-content" />
+
       <View style={styles.container}>
 
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.iconBtn}>
-            <MaterialIcons name="menu" size={26} color={COLORS.textLight} />
+        {/* GLASS HEADER */}
+        <BlurView intensity={80} tint="light" style={styles.header}>
+          <TouchableOpacity>
+            <MaterialIcons name="menu" size={24} color={COLORS.textDark} />
           </TouchableOpacity>
-          <Text style={styles.title}>Chic</Text>
-          <View style={styles.rightIcons}>
-            <TouchableOpacity style={styles.iconBtn}>
-              <MaterialIcons name="search" size={26} color={COLORS.textLight} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.iconBtn}>
-              <MaterialIcons name="favorite-border" size={26} color={COLORS.textLight} onPress={() => navigation.navigate("wishlist")} />
-            </TouchableOpacity>
-          </View>
-        </View>
 
-        {/* Content */}
-        <ScrollView style={styles.scroll} contentContainerStyle={{ paddingBottom: 120 }}>
-          {/* Hero */}
+          <Text style={styles.brand}>CHIC</Text>
+
+          <TouchableOpacity onPress={() => navigation.navigate("wishlist")}>
+            <MaterialIcons name="favorite-border" size={24} color={COLORS.textDark} />
+          </TouchableOpacity>
+        </BlurView>
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingTop: 90, paddingBottom: 100 }}
+        >
+
+          {/* HERO */}
           <View style={styles.heroWrap}>
-            <ImageBackground source={{ uri: heroImage }} style={styles.heroBg} imageStyle={{ opacity: 0.45 }}>
-              <View style={styles.heroContent}>
-                <Text style={styles.heroSmall}>Effortless Essentials</Text>
-                <Text style={styles.heroTitle}>The Art of Dressing</Text>
-                <TouchableOpacity style={styles.discoverBtn} onPress={() => navigation.navigate("Categories")}>
-                  <Text style={styles.discoverText}>Discover More</Text>
-                </TouchableOpacity>
-              </View>
+            <ImageBackground
+              source={{ uri: heroImage }}
+              style={styles.hero}
+              imageStyle={{ borderRadius: 30 }}
+            >
+              <LinearGradient
+                colors={["rgba(0,0,0,0.1)", "rgba(0,0,0,0.55)"]}
+                style={styles.heroOverlay}
+              >
+                <Text style={styles.heroSub}>Modern Collection</Text>
+                <Text style={styles.heroTitle}>
+                  Refined. Minimal. Timeless.
+                </Text>
+              </LinearGradient>
             </ImageBackground>
           </View>
-            {/* Trending Now */}
-         <View style={styles.section}>
-  <View style={styles.sectionHeader}>
-    <Text style={styles.sectionTitle}>Trending Styles</Text>
-    <TouchableOpacity onPress={() => navigation.navigate("Categories")}>
-      <Text style={styles.viewAll}>View All</Text>
-    </TouchableOpacity>
-  </View>
 
-  <ScrollView 
-    horizontal 
-    showsHorizontalScrollIndicator={false}
-    contentContainerStyle={{ paddingHorizontal: 10 }}
-  >
-   {data.map((item) => (
-     <TouchableOpacity 
-    key={item.product_id} 
-    style={styles.trendingItem}
-    onPress={() => navigation.navigate("productDetails", { id: item._id })}
-  >
-      <View key={item.product_id} style={styles.trendingItem}>
-        <Image 
-          source={{ uri: item.product_URL }} 
-          style={styles.trendingImage} 
-        />
-        <Text numberOfLines={1} style={styles.itemTitle}>
-          {item.Description}
-        </Text>
-        <Text style={styles.itemPrice}>{item.Price}</Text>
-      </View>
-      </TouchableOpacity>
-    ))}
-  </ScrollView>
-</View>
-
-          {/* New Arrivals */}
+          {/* TRENDING DRESSES */}
           <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>New Arrival</Text>
-              
-            </View>
+            <Text style={styles.sectionTitle}>Trending Dresses</Text>
 
-            <TouchableOpacity activeOpacity={0.9} style={styles.largeCard}>
-              <ImageBackground source={{ uri: newArrivalImage }} style={styles.largeCardBg} imageStyle={{ borderRadius: 18 }}>
-                <View style={styles.largeCardFooter}>
-                  <Text style={styles.largeCardTitle}>Satin Slip Dress</Text>
-                  <Text style={styles.largeCardPrice}>$95.00</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {dresses.map((item) => (
+                <TouchableOpacity
+                  key={item._id}
+                  style={styles.card}
+                  onPress={() =>
+                    navigation.navigate("productDetails", { id: item._id })
+                  }
+                >
+                  <Image
+                    source={{ uri: item.product_URL }}
+                    style={styles.cardImage}
+                  />
+                  <Text numberOfLines={1} style={styles.cardTitle}>
+                    {item.Description}
+                  </Text>
+                  <Text style={styles.cardPrice}>₹{item.Price}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+
+          {/* NEW ARRIVAL FEATURE */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>New Arrival</Text>
+
+            <TouchableOpacity
+              style={styles.largeCard}
+              activeOpacity={0.9}
+              onPress={() => navigation.navigate("Categories")}
+            >
+              <ImageBackground
+                source={{ uri: newArrivalImage }}
+                style={styles.largeImage}
+                imageStyle={{ borderRadius: 28 }}
+              >
+                <View style={styles.largeOverlay}>
+                  <Text style={styles.largeTitle}>
+                    Satin Slip Dress
+                  </Text>
+                  <Text style={styles.largePrice}>
+                    ₹4,990
+                  </Text>
                 </View>
               </ImageBackground>
             </TouchableOpacity>
           </View>
-        
 
-          {/* Editor's Picks */}
-          <View style={[styles.section, { paddingBottom: 30 }]}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Editor's Picks</Text>
-              <TouchableOpacity onPress={() => navigation.navigate("Categories")}>
-                <Text style={styles.viewAll}>View All</Text>
-              </TouchableOpacity>
-            </View>
-            
-  <ScrollView 
-    horizontal 
-    showsHorizontalScrollIndicator={false}
-    contentContainerStyle={{ paddingHorizontal: 10 }}
-  >
-   {datas.map((items) => (
-    <TouchableOpacity 
-    key={items.product_id} 
-    style={styles.trendingItem}
-    onPress={() => navigation.navigate("productDetails", { id: items._id })}
-  >
-      <View key={items.product_id} style={styles.trendingItem}>
-        <Image 
-          source={{ uri: items.product_URL }} 
-          style={styles.trendingImage} 
-        />
-        <Text numberOfLines={1} style={styles.itemTitle}>
-          {items.Description}
-        </Text>
-        <Text style={styles.itemPrice}>{items.Price}</Text>
-      </View>
-      </TouchableOpacity>
-    ))}
-  </ScrollView>
-  
+          {/* SHOES SECTION */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Luxury Footwear</Text>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {shoes.map((item) => (
+                <TouchableOpacity
+                  key={item._id}
+                  style={styles.card}
+                  onPress={() =>
+                    navigation.navigate("productDetails", { id: item._id })
+                  }
+                >
+                  <Image
+                    source={{ uri: item.product_URL }}
+                    style={styles.cardImage}
+                  />
+                  <Text numberOfLines={1} style={styles.cardTitle}>
+                    {item.Description}
+                  </Text>
+                  <Text style={styles.cardPrice}>₹{item.Price}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
           </View>
+
         </ScrollView>
-
-
       </View>
     </SafeAreaView>
   );
@@ -195,184 +186,141 @@ export default function Home({navigation}) {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
+    backgroundColor: "#F8F5F2",
   },
+
   container: {
     flex: 1,
-    backgroundColor: COLORS.backgroundLight,
+    backgroundColor: "#F8F5F2",
   },
+
   header: {
-    height: 64,
-    paddingHorizontal: 12,
+    position: "absolute",
+    top: 0,
+    left: 20,
+    right: 20,
+    height: 70,
+    borderRadius: 20,
+    zIndex: 10,
+    marginTop: 10,
+    paddingHorizontal: 20,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: COLORS.backgroundLight,
-    borderBottomWidth: Platform.OS === "ios" ? 0 : 0,
+    overflow: "hidden",
+    backgroundColor:
+      Platform.OS === "android"
+        ? "rgba(255,255,255,0.85)"
+        : "transparent",
   },
-  iconBtn: {
-    padding: 8,
-    borderRadius: 999,
-  },
-  title: {
-    fontSize: 22,
+
+  brand: {
+    fontSize: 18,
+    letterSpacing: 6,
     fontWeight: "700",
-    color: COLORS.textLight,
-    fontFamily: Platform.select({ ios: "Georgia", android: "sans-serif" }),
+    color: "#2E2A27",
+    fontFamily: Platform.select({
+      ios: "Georgia",
+      android: "serif",
+    }),
   },
-  rightIcons: {
-    flexDirection: "row",
-    gap: 6,
-  },
-  scroll: {
-    flex: 1,
-  },
+
   heroWrap: {
-    height: 420,
-    backgroundColor: COLORS.primarySubtle,
-    margin: 22,
-    borderRadius: 14,
+    marginHorizontal: 20,
+    height: 460,
+    borderRadius: 30,
     overflow: "hidden",
   },
-  heroBg: {
+
+  hero: { flex: 1 },
+
+  heroOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 16,
+    paddingHorizontal: 40,
   },
-  heroContent: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  heroSmall: {
-    textTransform: "uppercase",
+
+  heroSub: {
+    color: "#FFFFFF",
     fontSize: 12,
-    letterSpacing: 1,
-    color: "#34443c7c",
-    fontWeight: "600",
+    letterSpacing: 3,
+    marginBottom: 14,
+    textTransform: "uppercase",
   },
+
   heroTitle: {
-    fontSize: 26,
-    fontWeight: "800",
-    marginTop: 6,
-    color: "#284637bb",
+    color: "#FFFFFF",
+    fontSize: 30,
     textAlign: "center",
-  },
-  discoverBtn: {
-    marginTop: 12,
-    backgroundColor: "#fff",
-    paddingHorizontal: 18,
-    height: 40,
-    borderRadius: 999,
-    alignItems: "center",
-    justifyContent: "center",
-    elevation: 2,
-  },
-  discoverText: {
     fontWeight: "700",
-    color: COLORS.textLight,
   },
+
   section: {
-    marginHorizontal: 16,
-    marginTop: 23,
+    marginTop: 40,
   },
-  sectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "baseline",
-    marginBottom: 17,
-  },
+
   sectionTitle: {
     fontSize: 20,
-    fontWeight: "800",
-    color: COLORS.textLight,
-    marginLeft: 12
-  },
-  viewAll: {
-    color: COLORS.secondary,
-    fontWeight: "700",
-  },
-  largeCard: {
-    borderRadius: 18,
-    overflow: "hidden",
-    height: (width - 32) * (5 / 4), // aspect 4/5 as in html -> use inverse for height
-    marginTop: 6,
-  },
-  largeCardBg: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
-  largeCardFooter: {
-    padding: 14,
-    backgroundColor: "rgba(0,0,0,0.45)",
-  },
-  largeCardTitle: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  largeCardPrice: {
-    color: "rgba(255,255,255,0.8)",
-    fontSize: 13,
-    marginTop: 4,
-  },
-  trendingGrid: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 12,
-  },
-  trendingItem: {
-    width: (width - 48) / 2,
-    marginRight:11
-  },
-  trendingImage: {
-    width: "100%",
-    aspectRatio: 3 / 4,
-    borderRadius: 14,
-    objectFit:"cover"
-    
-  },
-  itemTitle: {
-    fontSize: 14,
+    marginLeft: 24,
+    marginBottom: 20,
     fontWeight: "600",
-    color: COLORS.textLight,
+    color: "#2E2A27",
+    fontFamily: Platform.select({
+      ios: "Georgia",
+      android: "serif",
+    }),
   },
-  itemPrice: {
-    fontSize: 12,
-    color: COLORS.mutedLight,
+
+  card: {
+    width: width * 0.55,
+    marginLeft: 18,
   },
-  picksCard: {
-    width: Math.round(width * 0.6),
-    marginLeft: 16,
-    marginRight: 8,
-    marginBottom: 12,
-  },
-  picksImage: {
+
+  cardImage: {
     width: "100%",
-    aspectRatio: 1,
-    borderRadius: 14,
+    height: width * 0.75,
+    borderRadius: 22,
+  },
+
+  cardTitle: {
+    marginTop: 14,
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#2E2A27",
+  },
+
+  cardPrice: {
+    marginTop: 6,
+    fontSize: 13,
+    color: "#C6A75E",
+    fontWeight: "600",
+  },
+
+  largeCard: {
+    marginHorizontal: 20,
+    height: 420,
+    borderRadius: 28,
     overflow: "hidden",
   },
-  bottomNav: {
+
+  largeImage: { flex: 1 },
+
+  largeOverlay: {
     position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 74,
-    backgroundColor: Platform.OS === "ios" ? "rgba(247,249,248,0.95)" : "rgba(247,249,248,0.98)",
-    borderTopWidth: 1,
-    borderTopColor: "#e6e6e6",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-around",
+    bottom: 20,
+    left: 20,
   },
-  bottomItem: {
-    alignItems: "center",
-    justifyContent: "center",
+
+  largeTitle: {
+    color: "#FFFFFF",
+    fontSize: 22,
+    fontWeight: "600",
   },
-  bottomLabel: {
-    fontSize: 11,
-    marginTop: 2,
-    color: COLORS.mutedLight,
-    fontWeight: "700",
+
+  largePrice: {
+    color: "#E8C77A",
+    marginTop: 6,
+    fontSize: 14,
   },
 });

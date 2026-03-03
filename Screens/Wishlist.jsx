@@ -7,6 +7,7 @@ import {
   ScrollView,
   StyleSheet,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -27,7 +28,6 @@ export default function Wishlist({ navigation }) {
       const res = await axios.get(
         `https://closify-server-3.onrender.com/wishlist/${userId}`
       );
-
       setWishlist(res.data);
       setLoading(false);
     } catch (err) {
@@ -40,15 +40,9 @@ export default function Wishlist({ navigation }) {
     try {
       await axios.post(
         `https://closify-server-3.onrender.com/wishlist/remove`,
-        {
-          userId: userId,
-          productId: productId,
-        }
+        { userId, productId }
       );
-
-      setWishlist((prev) =>
-        prev.filter((item) => item._id !== productId)
-      );
+      setWishlist((prev) => prev.filter((item) => item._id !== productId));
     } catch (err) {
       console.log("Remove error:", err);
     }
@@ -56,37 +50,55 @@ export default function Wishlist({ navigation }) {
 
   if (loading) {
     return (
-      <View style={{ marginTop: 120 }}>
-        <ActivityIndicator size="large" />
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" color="#D6B4A8" />
       </View>
     );
   }
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <MaterialIcons
           name="arrow-back"
-          size={26}
+          size={28}
           color="#4A4A4A"
           onPress={() => navigation.navigate("MainTabs")}
         />
         <Text style={styles.headerText}>My Wishlist</Text>
-        <MaterialIcons name="ios-share" size={22} color="#4A4A4A" />
+        <MaterialIcons name="share" size={24} color="#4A4A4A" />
       </View>
 
+      {/* Wishlist */}
       <ScrollView contentContainerStyle={styles.grid}>
         {wishlist.length === 0 ? (
-          <Text style={{ textAlign: "center", marginTop: 40 }}>
-            Your wishlist is empty
-          </Text>
+          <View style={styles.emptyContainer}>
+            <Image
+              source={{
+                uri: "https://cdn-icons-png.flaticon.com/512/4076/4076549.png",
+              }}
+              style={styles.emptyImage}
+              resizeMode="contain"
+            />
+            <Text style={styles.emptyTitle}>Your Wishlist is Empty 💖</Text>
+            <Text style={styles.emptySubtitle}>
+              Start adding your favorite luxury items and make it shine!
+            </Text>
+            <TouchableOpacity
+              style={styles.shopBtn}
+              onPress={() => navigation.navigate("MainTabs")}
+            >
+              <Text style={styles.shopBtnText}>Shop Now</Text>
+            </TouchableOpacity>
+          </View>
         ) : (
           wishlist.map((item) => (
             <View key={item._id} style={styles.card}>
               <ImageBackground
                 source={{ uri: item.product_URL }}
                 style={styles.image}
-                imageStyle={{ borderRadius: 14 }}
+                imageStyle={{ borderRadius: 16 }}
               >
                 <TouchableOpacity
                   style={styles.favoriteBtn}
@@ -114,24 +126,30 @@ export default function Wishlist({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5af", // pastel green
+    backgroundColor: "#fff0f5", // pastel pink
   },
-
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   // Header
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     padding: 16,
-    borderBottomColor: "#F5F5F5"
+    borderBottomColor: "#F5F5F5",
+    borderBottomWidth: 1,
   },
   headerText: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "700",
     color: "#4A4A4A",
+    fontFamily: "sans-serif",
   },
 
-  // Product grid
+  // Wishlist grid
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -143,45 +161,51 @@ const styles = StyleSheet.create({
   card: {
     width: "48%",
     backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 8,
-    marginBottom: 14,
-    elevation: 2,
+    borderRadius: 18,
+    padding: 10,
+    marginBottom: 16,
+    shadowColor: "#D6B4A8",
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 6,
+    elevation: 5,
   },
   image: {
     width: "100%",
-    height: 190,
-    borderRadius: 12,
+    height: 200,
+    borderRadius: 16,
     marginBottom: 8,
   },
   favoriteBtn: {
     position: "absolute",
-    top: 8,
-    right: 8,
-    backgroundColor: "rgba(255,255,255,0.8)",
-    borderRadius: 100,
-    padding: 5,
+    top: 10,
+    right: 10,
+    backgroundColor: "rgba(255,255,255,0.9)",
+    borderRadius: 50,
+    padding: 6,
   },
   brand: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#4A4A4A",
-  },
-  name: {
-    fontSize: 11,
-    color: "#777",
-  },
-  price: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: "700",
     color: "#4A4A4A",
     marginTop: 4,
   },
+  name: {
+    fontSize: 12,
+    color: "#8b8b8b",
+    marginVertical: 2,
+  },
+  price: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#4A4A4A",
+    marginTop: 2,
+  },
   addBtn: {
-    backgroundColor: "#D6B4A8", // rose gold
-    borderRadius: 8,
-    paddingVertical: 6,
-    marginTop: 6,
+    backgroundColor: "#D6B4A8",
+    borderRadius: 10,
+    paddingVertical: 8,
+    marginTop: 8,
   },
   addText: {
     textAlign: "center",
@@ -190,23 +214,41 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 
-  // Bottom navigation
-  bottomNav: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingVertical: 10,
-    backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderTopColor: "#F5F5F5",
-    position: "absolute",
-    bottom: 0,
-    width: "100%",
-  },
-  navItem: {
+  // Empty wishlist
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
+    paddingTop: 80,
+    paddingHorizontal: 20,
   },
-  navText: {
-    fontSize: 11,
-    color: "#777",
+  emptyImage: {
+    width: 180,
+    height: 180,
+    marginBottom: 20,
+    tintColor: "#D6B4A8",
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#4A4A4A",
+    marginBottom: 10,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: "#8b8b8b",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  shopBtn: {
+    backgroundColor: "#D6B4A8",
+    paddingVertical: 10,
+    paddingHorizontal: 25,
+    borderRadius: 25,
+  },
+  shopBtnText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 14,
   },
 });

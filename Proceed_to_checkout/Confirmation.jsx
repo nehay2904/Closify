@@ -1,23 +1,62 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Image,
   Dimensions,
+  Animated,
+  Easing,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
-export default function OrderConfirmationScreen({navigation}) {
+export default function OrderConfirmationScreen({ navigation }) {
+  const scaleAnim = useRef(new Animated.Value(0)).current;
+  const ringAnim = useRef(new Animated.Value(0)).current;
+  const textAnim = useRef(new Animated.Value(0)).current;
+
+  // ✅ Calculate 5 days from today
+  const today = new Date();
+  const deliveryDate = new Date();
+  deliveryDate.setDate(today.getDate() + 5);
+
+  const formattedDate = deliveryDate.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  useEffect(() => {
+    // Check bounce
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 4,
+      useNativeDriver: true,
+    }).start();
+
+    // Expanding ring
+    Animated.timing(ringAnim, {
+      toValue: 1,
+      duration: 1200,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start();
+
+    // Text fade + slide
+    Animated.timing(textAnim, {
+      toValue: 1,
+      duration: 1000,
+      delay: 400,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
-      
-      {/* Soft Background Shape */}
       <View style={styles.softWave} />
 
       {/* Header */}
@@ -35,27 +74,72 @@ export default function OrderConfirmationScreen({navigation}) {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* Success Icon */}
-        <View style={styles.iconWrapper}>
-          <View style={styles.iconOuter}>
-            <View style={styles.iconInner}>
-              <MaterialIcons
-                name="check-circle"
-                size={42}
-                color="#7DBE9F"
-              />
+        {/* Animated Success Icon */}
+        <View style={{ alignItems: "center", marginTop: 40 }}>
+          {/* Expanding Ring */}
+          <Animated.View
+            style={{
+              position: "absolute",
+              width: 120,
+              height: 120,
+              borderRadius: 60,
+              backgroundColor: "rgba(125,190,159,0.2)",
+              transform: [
+                {
+                  scale: ringAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.5, 2],
+                  }),
+                },
+              ],
+              opacity: ringAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.6, 0],
+              }),
+            }}
+          />
+
+          {/* Check Bounce */}
+          <Animated.View
+            style={{
+              transform: [{ scale: scaleAnim }],
+            }}
+          >
+            <View style={styles.iconOuter}>
+              <View style={styles.iconInner}>
+                <MaterialIcons
+                  name="check"
+                  size={42}
+                  color="#7DBE9F"
+                />
+              </View>
             </View>
-          </View>
+          </Animated.View>
         </View>
 
-        {/* Title */}
-        <Text style={styles.title}>
-          Thank you for choosing us
-        </Text>
+        {/* Animated Text */}
+        <Animated.View
+          style={{
+            opacity: textAnim,
+            transform: [
+              {
+                translateY: textAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [20, 0],
+                }),
+              },
+            ],
+            alignItems: "center",
+          }}
+        >
+          <Text style={styles.title}>
+            Thank you for choosing us
+          </Text>
 
-        <Text style={styles.subtitle}>
-          Your order has been placed successfully. We're getting your wardrobe upgrade ready.
-        </Text>
+          <Text style={styles.subtitle}>
+            Your order has been placed successfully.
+          </Text>
+        </Animated.View>
 
         {/* Order Reference */}
         <View style={styles.referenceBox}>
@@ -63,8 +147,7 @@ export default function OrderConfirmationScreen({navigation}) {
           <Text style={styles.referenceValue}>#NY-8829034</Text>
         </View>
 
-
-        {/* Delivery Box */}
+        {/* Delivery Card */}
         <View style={styles.deliveryCard}>
           <View style={styles.deliveryIcon}>
             <MaterialIcons name="schedule" size={20} color="#7DBE9F" />
@@ -74,7 +157,7 @@ export default function OrderConfirmationScreen({navigation}) {
               EXPECTED DELIVERY
             </Text>
             <Text style={styles.deliveryDate}>
-              October 24 — 28, 2024
+              {formattedDate}
             </Text>
           </View>
         </View>
@@ -87,16 +170,17 @@ export default function OrderConfirmationScreen({navigation}) {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.navigate("MainTabs")}>
+          <TouchableOpacity
+            style={styles.secondaryButton}
+            onPress={() => navigation.navigate("MainTabs")}
+          >
             <Text style={styles.secondaryButtonText}>
               Continue Shopping
             </Text>
           </TouchableOpacity>
         </View>
-
       </ScrollView>
 
-      {/* Bottom Handle */}
       <View style={styles.bottomHandle} />
     </SafeAreaView>
   );
@@ -141,11 +225,6 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
 
-  iconWrapper: {
-    marginTop: 40,
-    marginBottom: 30,
-  },
-
   iconOuter: {
     width: 100,
     height: 100,
@@ -166,10 +245,11 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontStyle: "italic",
     textAlign: "center",
     color: "#3D5A4D",
+    marginTop: 30,
     marginBottom: 10,
   },
 
@@ -195,28 +275,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     color: "#3D5A4D",
-  },
-
-  previewImage: {
-    width: 70,
-    height: 90,
-    borderRadius: 10,
-    marginRight: 12,
-  },
-
-  moreBox: {
-    width: 70,
-    height: 90,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "rgba(125,190,159,0.3)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  moreText: {
-    color: "#7DBE9F",
-    fontWeight: "600",
   },
 
   deliveryCard: {
@@ -278,6 +336,7 @@ const styles = StyleSheet.create({
     color: "#7DBE9F",
     fontSize: 15,
     fontWeight: "600",
+    paddingHorizontal:20
   },
 
   bottomHandle: {
@@ -286,6 +345,6 @@ const styles = StyleSheet.create({
     height: 4,
     borderRadius: 2,
     backgroundColor: "rgba(61,90,77,0.1)",
-    marginBottom: 8,
+    marginBottom: 8
   },
 });

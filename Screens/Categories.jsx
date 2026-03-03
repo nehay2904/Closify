@@ -7,10 +7,10 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
-import { BlurView } from "expo-blur";
 
 const { width } = Dimensions.get("window");
 
@@ -21,13 +21,13 @@ export default function Categories({ navigation }) {
   const [footwear, setFootwear] = useState([]);
 
   useEffect(() => {
-    axios.get("https://closify-server-3.onrender.com/products/women-dress")
+    axios.get("https://closify-server-3.onrender.com/products/category/Women%20Dress")
       .then(res => setDresses(res.data));
 
-    axios.get("https://closify-server-3.onrender.com/products/bags")
+    axios.get("https://closify-server-3.onrender.com/products/category/BAGS")
       .then(res => setBags(res.data));
 
-    axios.get("https://closify-server-3.onrender.com/products/footwear")
+    axios.get("https://closify-server-3.onrender.com/products/category/FOOTWEAR")
       .then(res => setFootwear(res.data));
   }, []);
 
@@ -39,111 +39,134 @@ export default function Categories({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false}>
 
-      {/* TITLE */}
-      <Text style={styles.pageTitle}>Categories</Text>
+        {/* HEADER */}
+        <View style={styles.header}>
+          <Text style={styles.brand}>CLOSIFY</Text>
+          <Text style={styles.tagline}>Choose your outfit</Text>
+        </View>
 
-      {/* GLASS TABS */}
-      <BlurView intensity={40} tint="light" style={styles.tabsGlass}>
-        <TabText title="Dresses" active={selected==="dresses"} onPress={() => setSelected("dresses")} />
-        <TabText title="Bags" active={selected==="bags"} onPress={() => setSelected("bags")} />
-        <TabText title="Footwear" active={selected==="footwear"} onPress={() => setSelected("footwear")} />
-      </BlurView>
+        {/* CATEGORY SELECTOR */}
+        <View style={styles.tabs}>
+          {["Dresses", "Bags", "Footwear"].map((item) => {
+            const key = item.toLowerCase();
+            const active = selected === key;
 
-      {/* PRODUCT GRID */}
-      <FlatList
-        data={getData()}
-        numColumns={2}
-        keyExtractor={(item) => item._id}
-        contentContainerStyle={{ padding: 14 }}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.card}
-            onPress={() => navigation.navigate("productDetails", { id: item._id })}
-          >
-            <Image source={{ uri: item.product_URL }} style={styles.image} />
-            <Text numberOfLines={1} style={styles.name}>{item.Description}</Text>
-            <Text style={styles.price}>{item.Price}</Text>
-          </TouchableOpacity>
-        )}
-      />
+            return (
+              <TouchableOpacity key={item} onPress={() => setSelected(key)}>
+                <Text style={[styles.tabText, active && styles.activeTab]}>
+                  {item}
+                </Text>
+                {active && <View style={styles.underline} />}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {/* PRODUCT GRID */}
+        <FlatList
+          data={getData()}
+          numColumns={2}
+          keyExtractor={(item) => item._id}
+          scrollEnabled={false}
+          contentContainerStyle={{ paddingHorizontal: 20 }}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.card}
+              onPress={() =>
+                navigation.navigate("productDetails", { id: item._id })
+              }
+            >
+              <Image
+                source={{ uri: item.product_URL }}
+                style={styles.image}
+              />
+              <Text numberOfLines={1} style={styles.name}>
+                {item.Description}
+              </Text>
+              <Text style={styles.price}>₹ {item.Price}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
-/* TEXT TAB */
-const TabText = ({ title, active, onPress }) => (
-  <TouchableOpacity onPress={onPress}>
-    <Text style={[styles.tabText, active && styles.activeTab]}>{title}</Text>
-  </TouchableOpacity>
-);
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F7F9F8",
+    backgroundColor: "#F7F4EF", // soft luxury beige
   },
 
-  pageTitle: {
-    fontSize: 28,
-    fontWeight: "700",
-    marginLeft: 20,
-    marginTop: 10,
-    letterSpacing: 0.5,
-    color: "#1E2925",
+  header: {
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    marginBottom: 30,
   },
 
-  /* Glass Tabs */
-  tabsGlass: {
+  brand: {
+    fontSize: 34,
+    fontWeight: "600",
+    letterSpacing: 6,
+    textAlign: "center",
+    fontFamily: "serif",
+  },
+
+  tagline: {
+    fontSize: 13,
+    textAlign: "center",
+    marginTop: 8,
+    letterSpacing: 2,
+    color: "#7A7A7A",
+  },
+
+  tabs: {
     flexDirection: "row",
     justifyContent: "space-around",
-    margin: 15,
-    paddingVertical: 10,
-    borderRadius: 25,
-    overflow: "hidden",
-    backgroundColor: "rgba(255,255,255,0.3)",
+    marginBottom: 30,
   },
 
   tabText: {
-    fontSize: 16,
-    color: "#678177",
-    fontWeight: "500",
+    fontSize: 15,
+    letterSpacing: 1,
+    color: "#999",
+    paddingBottom: 8,
   },
 
   activeTab: {
-    color: "#1E2925",
-    fontWeight: "700",
-    textDecorationLine: "underline",
+    color: "#000",
+    fontWeight: "600",
   },
 
-  /* Product Cards */
+  underline: {
+    height: 1,
+    backgroundColor: "#000",
+    marginTop: 4,
+  },
+
   card: {
-    width: width / 2 - 22,
-    margin: 8,
-    borderRadius: 20,
-    backgroundColor: "#fff",
-    padding: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    elevation: 3,
+    width: width / 2 - 30,
+    marginBottom: 30,
+    marginHorizontal:10
   },
 
   image: {
     width: "100%",
-    height: 190,
-    borderRadius: 16,
+    height: 230,
+    borderRadius: 6,
   },
 
   name: {
-    fontSize: 13,
-    marginTop: 6,
-    fontWeight: "500",
+    fontSize: 14,
+    marginTop: 10,
+    letterSpacing: 0.5,
   },
 
   price: {
-    fontSize: 14,
-    fontWeight: "bold",
-    marginTop: 3,
+    fontSize: 16,
+    marginTop: 6,
+    fontWeight: "600",
   },
 });

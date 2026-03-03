@@ -58,7 +58,7 @@ export default function Profile({navigation}) {
         {/* Options */}
         {[
          { icon: "local-mall", label: "My Orders", screen: "myOrdersScreen" },
-         { icon: "favorite", label: "My Wishlist", screen: "Wishlist" },
+         { icon: "favorite", label: "My Wishlist", screen: "wishlist" },
          { icon: "home", label: "Saved Addresses", screen: "SavedAddresses" },
          { icon: "credit-card", label: "Payment Methods", screen: "PaymentMethods" },
          ].map((item, index) => (

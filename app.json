@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "my-app",
+    "name": "CHIC MODERN",
     "slug": "my-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,43 +9,44 @@
       "ios",
       "web"
     ],
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon.jpg",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/icon.jpg",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.neha.closify",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.neha_y22.myapp",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.jpg",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/icon.jpg"
     },
     "plugins": [
       "expo-web-browser"
     ],
     "extra": {
       "eas": {
-        "projectId": "1f0ae98b-f7b6-4576-914c-09d8fd8c5fbb"
+        "projectId": "1b8c1b42-d775-445f-b419-175a59c45d82"
       }
     },
-    "owner": "neha_y22",
+    "owner": "neha2712",
     "runtimeVersion": {
       "policy": "appVersion"
-    },
-    "updates": {
-      "url": "https://u.expo.dev/1f0ae98b-f7b6-4576-914c-09d8fd8c5fbb"
     }
   }
 }
