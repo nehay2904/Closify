@@ -13,48 +13,85 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+
 export default function Wishlist({ navigation }) {
-  const [wishlist, setWishlist] = useState([]);
-  const [loading, setLoading] = useState(true);
+const [wishlist, setWishlist] = useState([]);
+const [loading, setLoading] = useState(true);
+const [userId, setUserId] = useState(null);
 
-  const userId = "698ed558a5249413d1783c1b";
 
-  useEffect(() => {
+// Get userId
+useEffect(() => {
+  const getUserId = async () => {
+    try {
+      const id = await AsyncStorage.getItem("userId");
+      setUserId(id);
+    } catch (err) {
+      console.log("UserId error:", err);
+    }
+  };
+
+  getUserId();
+}, []);
+
+
+// Fetch wishlist when userId loads
+useEffect(() => {
+  if (userId) {
     fetchWishlist();
-  }, []);
-
-  const fetchWishlist = async () => {
-    try {
-      const res = await axios.get(
-        `https://closify-server-3.onrender.com/wishlist/${userId}`
-      );
-      setWishlist(res.data);
-      setLoading(false);
-    } catch (err) {
-      console.log("Wishlist fetch error:", err);
-      setLoading(false);
-    }
-  };
-
-  const removeItem = async (productId) => {
-    try {
-      await axios.post(
-        `https://closify-server-3.onrender.com/wishlist/remove`,
-        { userId, productId }
-      );
-      setWishlist((prev) => prev.filter((item) => item._id !== productId));
-    } catch (err) {
-      console.log("Remove error:", err);
-    }
-  };
-
-  if (loading) {
-    return (
-      <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#D6B4A8" />
-      </View>
-    );
   }
+}, [userId]);
+
+
+const fetchWishlist = async () => {
+  try {
+
+    const res = await axios.get(
+      `https://closify-server-3.onrender.com/wishlist/${userId}`
+    );
+
+    setWishlist(res.data);
+    setLoading(false);
+
+  } catch (err) {
+    console.log("Wishlist fetch error:", err);
+    setLoading(false);
+  }
+};
+
+
+// Remove item
+const removeItem = async (productId) => {
+  try {
+
+    await axios.post(
+      "https://closify-server-3.onrender.com/wishlist/remove",
+      {
+        userId: userId,
+        productId: productId,
+      }
+    );
+
+    setWishlist((prev) =>
+      prev.filter((item) => item._id !== productId)
+    );
+
+  } catch (err) {
+    console.log("Remove error:", err);
+  }
+};
+
+
+// Loader
+if (loading) {
+  return (
+    <View style={styles.loader}>
+      <ActivityIndicator size="large" color="#D6B4A8" />
+    </View>
+  );
+}
 
   return (
     <SafeAreaView style={styles.container}>

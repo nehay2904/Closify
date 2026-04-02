@@ -14,87 +14,157 @@ import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { CartContext } from "../Context/Cardcontext";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 const { width } = Dimensions.get("window");
 
 export default function ProductDetails({ route, navigation }) {
-  const { addToCart } = useContext(CartContext);
+const { addToCart } = useContext(CartContext);
 
-  const id = route?.params?.id;
+const id = route?.params?.id;
 
-  const [product, setProduct] = useState(null);
-  const [isAdded, setIsAdded] = useState(false);
-   const [isFavorite, setIsFavorite] = useState(false);
+const [product, setProduct] = useState(null);
+const [isAdded, setIsAdded] = useState(false);
+const [isFavorite, setIsFavorite] = useState(false);
 
-  const [stylistData, setStylistData] = useState(null);
-  const [stylistLoading, setStylistLoading] = useState(false);
+const [stylistData, setStylistData] = useState(null);
+const [stylistLoading, setStylistLoading] = useState(false);
 
-  // Fetch product
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const res = await axios.get(
-          `https://closify-server-3.onrender.com/products/${id}`
-        );
-        setProduct(res.data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
+const [userId, setUserId] = useState(null);
 
-    if (id) fetchProduct();
-  }, [id]);
 
-  // Reset AI when product changes
-  useEffect(() => {
-    setStylistData(null);
-  }, [id]);
-
-  // AI outfit
-  const generateOutfit = async () => {
+// Get logged in userId
+useEffect(() => {
+  const getUserId = async () => {
     try {
-      setStylistLoading(true);
-
-      const res = await axios.post(
-        "https://closify-server-3.onrender.com/ai-stylist",
-        {
-          productId: product.product_id,
-        }
-      );
-
-      setStylistData(res.data);
+      const storedId = await AsyncStorage.getItem("userId");
+      setUserId(storedId);
     } catch (err) {
-      console.log("AI error", err);
-    } finally {
-      setStylistLoading(false);
+      console.log("UserId error:", err);
     }
   };
 
+  getUserId();
+}, []);
 
-  const userId = "69a6c3ebea0da2f10f658bec";
+
+// Fetch product
+useEffect(() => {
+  const fetchProduct = async () => {
+    try {
+      if (!id) return;
+
+      const res = await axios.get(
+        `https://closify-server-3.onrender.com/products/${id}`
+      );
+
+      setProduct(res.data);
+    } catch (err) {
+      console.log("Product fetch error:", err);
+    }
+  };
+
+  fetchProduct();
+}, [id]);
+
+
+// Reset AI when product changes
+useEffect(() => {
+  setStylistData(null);
+}, [id]);
+
+
+// Generate AI outfit
+const generateOutfit = async () => {
+  try {
+    if (!product) return;
+
+    setStylistLoading(true);
+
+    const res = await axios.post(
+      "https://closify-server-3.onrender.com/ai-stylist",
+      {
+        productId: product.product_id,
+      }
+    );
+
+    setStylistData(res.data);
+
+  } catch (err) {
+    console.log("AI error:", err);
+  } finally {
+    setStylistLoading(false);
+  }
+};
+
+
 // Check wishlist
- useEffect(() => { const checkWishlist = async () => 
-  
-  { try { const res = await axios.get( `https://closify-server-3.onrender.com/wishlist/${userId}` ); 
-  const exists = res.data.some((item) => item._id === id); 
-  setIsFavorite(exists); } catch (err) { console.log("Wishlist check error:", err); } }; 
-  if (id) checkWishlist(); }, [id]); 
+useEffect(() => {
+  const checkWishlist = async () => {
+    try {
+
+      if (!userId || !id) return;
+
+      const res = await axios.get(
+        `https://closify-server-3.onrender.com/wishlist/${userId}`
+      );
+
+      const exists = res.data.some((item) => item._id === id);
+
+      setIsFavorite(exists);
+
+    } catch (err) {
+      console.log("Wishlist check error:", err);
+    }
+  };
+
+  checkWishlist();
+}, [id, userId]);
 
 
+// Add or remove wishlist
+const handleWishlist = async () => {
+  try {
 
-// Wishlist
-   const handleWishlist = async () => { 
-    try { if (isFavorite) { 
-      await axios.post( "https://closify-server-3.onrender.com/wishlist/remove", 
-        { userId, productId: product._id, } ); setIsFavorite(false); }
-         else { await axios.post( "https://closify-server-3.onrender.com/wishlist/add", { 
-          userId, productId: product._id, } ); setIsFavorite(true); } } 
-          catch (error) { console.log("Wishlist error:", error); } };
-  // Add to cart
- const handleAddToCart = async () => {
+    if (!userId || !product) return;
+
+    if (isFavorite) {
+
+      await axios.post(
+        "https://closify-server-3.onrender.com/wishlist/remove",
+        {
+          userId,
+          productId: product._id,
+        }
+      );
+
+      setIsFavorite(false);
+
+    } else {
+
+      await axios.post(
+        "https://closify-server-3.onrender.com/wishlist/add",
+        {
+          userId,
+          productId: product._id,
+        }
+      );
+
+      setIsFavorite(true);
+    }
+
+  } catch (error) {
+    console.log("Wishlist error:", error);
+  }
+};
+
+
+// Add to cart
+const handleAddToCart = async () => {
   try {
 
     if (!userId) {
-      console.log("No userId found");
+      console.log("User not logged in");
       return;
     }
 
@@ -127,13 +197,16 @@ export default function ProductDetails({ route, navigation }) {
   }
 };
 
-  if (!product) {
-    return (
-      <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#B76E79" />
-      </View>
-    );
-  }
+
+// Loader
+if (!product) {
+  return (
+    <View style={styles.loader}>
+      <ActivityIndicator size="large" color="#B76E79" />
+    </View>
+  );
+}
+
 
   return (
     <SafeAreaView style={styles.container}>

@@ -47,6 +47,9 @@
     "owner": "neha2712",
     "runtimeVersion": {
       "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1b8c1b42-d775-445f-b419-175a59c45d82"
     }
   }
 }

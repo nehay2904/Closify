@@ -28,7 +28,7 @@ const COLORS = {
 };
 
 const heroImage =
-  "https://i.pinimg.com/736x/c7/2e/41/c72e41cae3d2ef0a3a7b8ba3819b6a49.jpg";
+  "https://i.pinimg.com/736x/16/28/b4/1628b40428d54907bca400dce0175f77.jpg";
 
 const newArrivalImage =
   "https://assets.newme.asia/wp-content/uploads/2024/07/2812134426390f5a/NM-PRC-74-DRS-24-JUL-7789-WHITE(1).webp";

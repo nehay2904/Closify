@@ -4,8 +4,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 // Import your screens
-import SplashScreen from '../Screens/Launch_screen';
-import LoginScreen from '../Screens/Login';
+import SplashScreen from '../Login pages/Launch_screen';
+import LoginScreen from '../Login pages/Login';
 import Home from '../Screens/Home';
 import Categories from '../Screens/Categories';
 import Profile from '../Screens/profile';
@@ -27,6 +27,7 @@ export default function Navigation_tab() {
         <Stack.Screen name="Cat" component={Categories} />
         <Stack.Screen name="profile" component={Profile} />
         <Stack.Screen name="settings" component={Setting_screen} />
+        <Stack.Screen name="sizeselector" component={SizeSelector} />
       </Stack.Navigator>
   );
 }

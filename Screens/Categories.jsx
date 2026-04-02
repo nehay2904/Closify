@@ -19,6 +19,7 @@ export default function Categories({ navigation }) {
   const [dresses, setDresses] = useState([]);
   const [bags, setBags] = useState([]);
   const [footwear, setFootwear] = useState([]);
+  const [topPicks, setTopPicks] = useState([]);
 
   useEffect(() => {
     axios.get("https://closify-server-3.onrender.com/products/category/Women%20Dress")
@@ -29,12 +30,15 @@ export default function Categories({ navigation }) {
 
     axios.get("https://closify-server-3.onrender.com/products/category/FOOTWEAR")
       .then(res => setFootwear(res.data));
+    axios.get("https://closify-server-3.onrender.com/products/category/Top")
+      .then(res => setTopPicks(res.data));
   }, []);
 
   const getData = () => {
     if (selected === "dresses") return dresses;
     if (selected === "bags") return bags;
-    return footwear;
+    if (selected === "footwear") return footwear;
+    return topPicks;
   };
 
   return (
@@ -49,7 +53,7 @@ export default function Categories({ navigation }) {
 
         {/* CATEGORY SELECTOR */}
         <View style={styles.tabs}>
-          {["Dresses", "Bags", "Footwear"].map((item) => {
+          {["Dresses", "Bags", "Footwear", "Top Picks"].map((item) => {
             const key = item.toLowerCase();
             const active = selected === key;
 

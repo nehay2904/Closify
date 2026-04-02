@@ -27,14 +27,14 @@ export default function ChicModernLaunchScreen({ navigation }) {
     // Progress bar animation
     Animated.timing(progressAnim, {
       toValue: 1,
-      duration: 4000,
+      duration: 1000,
       useNativeDriver: false,
     }).start();
 
     // Navigate after 2 seconds
     const timer = setTimeout(() => {
       navigation.replace("Login");
-    }, 4000);
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -53,7 +53,7 @@ export default function ChicModernLaunchScreen({ navigation }) {
       <View style={styles.rightSide}>
         <ImageBackground
           source={{
-            uri: "https://i.pinimg.com/736x/12/26/23/1226235683655c32f8869f4b212bebd3.jpg",
+            uri: "https://i.pinimg.com/736x/a9/62/17/a962176d2b2205d07606e0a5f1a254b2.jpg",
           }}
           style={styles.image}
         >

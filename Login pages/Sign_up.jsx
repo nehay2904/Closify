@@ -1,96 +1,138 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert
+  Alert,
+  ActivityIndicator
 } from "react-native";
+import * as WebBrowser from "expo-web-browser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import Colors from "../constants/colors";
 
-export default function Login({ navigation }) {
+WebBrowser.maybeCompleteAuthSession();
+
+export default function Sign_up({ navigation }) {
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // ✅ AUTO LOGIN CHECK
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      const token = await AsyncStorage.getItem("token");
-
-      if (token) {
-        navigation.replace("MainTabs");  // Auto redirect
-      }
-    };
-
-    checkLoginStatus();
-  }, []);
-
-  const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Missing Fields", "Please enter both email and password");
+  const handleRegister = async () => {
+    if (!username || !email || !password) {
+      Alert.alert("Missing Fields", "Please fill in all fields");
       return;
     }
 
     try {
-      const res = await axios.post(
-        "https://closify-server-1.onrender.com/login",
-        { email, password }
+      setLoading(true);
+
+      // ✅ REGISTER
+      await axios.post(
+        "https://closify-server-1.onrender.com/register",
+        {
+          name: username,
+          email,
+          password,
+        }
       );
 
-      await AsyncStorage.setItem("token", res.data.token);
-      await AsyncStorage.setItem("user", JSON.stringify(res.data.user));
+      // ✅ LOGIN AFTER REGISTER (VERY IMPORTANT)
+      const loginRes = await axios.post(
+        "https://closify-server-1.onrender.com/login",
+        {
+          email,
+          password,
+        }
+      );
 
-      Alert.alert("Welcome", `Hello ${res.data.user.name}!`);
+      console.log("LOGIN RESPONSE:", loginRes.data);
 
-      navigation.replace("MainTabs");
+      // ✅ STORE USER ID
+      await AsyncStorage.setItem("userId", loginRes.data.user._id);
+      await AsyncStorage.setItem("userEmail", email);
 
+      Alert.alert("Success", "Account created successfully!");
+
+      navigation.replace("sizeselector");
     } catch (error) {
+      console.error(error);
+
       Alert.alert(
-        "Login Failed",
+        "Error",
         error.response?.data?.message || "Something went wrong!"
       );
+    } finally {
+      setLoading(false);
     }
   };
+
 
   return (
     <View style={styles.container}>
       <Text style={styles.logo}>💎</Text>
-      <Text style={styles.title}>Welcome back, Gorgeous</Text>
+      <Text style={styles.title}>Hey, Gorgeous</Text>
 
       <TextInput
         style={styles.input}
         placeholder="Enter your email"
+        placeholderTextColor="#888888ff"
         value={email}
         onChangeText={setEmail}
       />
 
       <TextInput
         style={styles.input}
-        placeholder="Enter your password"
-        secureTextEntry   // ✅ Hide password
-        value={password}
-        onChangeText={setPassword}
+        placeholder="Enter your username"
+        placeholderTextColor="#888888ff"
+        value={username}
+        onChangeText={setUsername}
       />
 
-      <TouchableOpacity style={styles.mainButton} onPress={handleLogin}>
-        <Text style={{ fontSize: 16 }}>Login</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Enter your password"
+        placeholderTextColor="#888888ff"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+
+      <TouchableOpacity
+        style={styles.mainButton}
+        onPress={handleRegister}
+        disabled={loading}
+      >
+        {loading ? (
+          <ActivityIndicator size="small" color="#000" />
+        ) : (
+          <Text style={{ fontSize: 16 }}>Sign up</Text>
+        )}
       </TouchableOpacity>
 
       <Text style={styles.footer}>
         New here?{" "}
         <Text
           style={styles.link}
-          onPress={() => navigation.navigate("sign_up")}
+          onPress={() => navigation.navigate("Login")}
         >
-          click here to sign up
+          click here to Login
         </Text>
+      </Text>
+
+      <Text style={styles.footer}>
+        By continuing, you agree to our{" "}
+        <Text style={styles.link}>Terms</Text> &{" "}
+        <Text style={styles.link}>Privacy Policy</Text>
       </Text>
     </View>
   );
+
 }
+
 
 const styles = StyleSheet.create({
   container: {

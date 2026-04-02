@@ -11,102 +11,142 @@ import {
 import axios from "axios";
 import { CartContext } from "../Context/Cardcontext";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function ShoppingCart({ navigation }) {
-  const { cartItems = [], setCartItems } = useContext(CartContext);
-  const [loading, setLoading] = useState(true);
 
-  const userId = "698ed558a5249413d1783c1b";
+const { cartItems = [], setCartItems } = useContext(CartContext);
+const [loading, setLoading] = useState(true);
+const [userId, setUserId] = useState(null);
 
-  useEffect(() => {
+
+// Get userId
+useEffect(() => {
+  const getUserId = async () => {
+    try {
+      const id = await AsyncStorage.getItem("userId");
+      setUserId(id);
+    } catch (err) {
+      console.log("UserId error:", err);
+    }
+  };
+
+  getUserId();
+}, []);
+
+
+// Fetch cart
+useEffect(() => {
+  if (userId) {
     fetchCart();
-  }, []);
-
-  const fetchCart = async () => {
-    try {
-      const res = await axios.get(
-        `https://closify-server-3.onrender.com/cart/${userId}`
-      );
-
-      const { cart, products } = res.data;
-
-      const formattedCart = cart.map((item) => {
-        const product = products.find(
-          (p) => p._id === item.productId
-        );
-
-        return {
-          _id: product._id,
-          name: product.ProductName,
-          price: product.Price,
-          image: product.product_URL,
-          quantity: item.quantity,
-          size: item.size,
-          color: item.color,
-        };
-      });
-
-      setCartItems(formattedCart);
-      setLoading(false);
-    } catch (error) {
-      console.log("Cart fetch error:", error);
-      setLoading(false);
-    }
-  };
-
-  const increaseQuantity = (_id) => {
-    setCartItems((items) =>
-      items.map((item) =>
-        item._id === _id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      )
-    );
-  };
-
-  const decreaseQuantity = (_id) => {
-    setCartItems((items) =>
-      items.map((item) =>
-        item._id === _id && item.quantity > 1
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
-      )
-    );
-  };
-
-  const removeItem = async (_id) => {
-    try {
-      await axios.post(
-        `https://closify-server-3.onrender.com/cart/remove`,
-        {
-          userId: userId,
-          productId: _id,
-        }
-      );
-
-      setCartItems((items) =>
-        items.filter((item) => item._id !== _id)
-      );
-    } catch (error) {
-      console.log("Remove cart error:", error);
-    }
-  };
-
-  const subtotal = cartItems.reduce(
-    (acc, item) =>
-      acc + Number(item.price) * item.quantity,
-    0
-  );
-
-  const discount = subtotal * 0.1;
-  const total = subtotal - discount;
-
-  if (loading) {
-    return (
-      <View style={{ marginTop: 120 }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
   }
+}, [userId]);
+
+
+const fetchCart = async () => {
+  try {
+
+    const res = await axios.get(
+      `https://closify-server-3.onrender.com/cart/${userId}`
+    );
+
+    const { cart, products } = res.data;
+
+    const formattedCart = cart.map((item) => {
+
+      const product = products.find(
+        (p) => p._id === item.productId
+      );
+
+      if (!product) return null;
+
+      return {
+        _id: product._id,
+        name: product.ProductName,
+        price: product.Price,
+        image: product.product_URL,
+        quantity: item.quantity,
+        size: item.size,
+        color: item.color,
+      };
+
+    }).filter(Boolean);
+
+    setCartItems(formattedCart);
+    setLoading(false);
+
+  } catch (error) {
+    console.log("Cart fetch error:", error);
+    setLoading(false);
+  }
+};
+
+
+// Increase quantity
+const increaseQuantity = (_id) => {
+  setCartItems((items) =>
+    items.map((item) =>
+      item._id === _id
+        ? { ...item, quantity: item.quantity + 1 }
+        : item
+    )
+  );
+};
+
+
+// Decrease quantity
+const decreaseQuantity = (_id) => {
+  setCartItems((items) =>
+    items.map((item) =>
+      item._id === _id && item.quantity > 1
+        ? { ...item, quantity: item.quantity - 1 }
+        : item
+    )
+  );
+};
+
+
+// Remove item
+const removeItem = async (_id) => {
+  try {
+
+    await axios.post(
+      "https://closify-server-3.onrender.com/cart/remove",
+      {
+        userId: userId,
+        productId: _id,
+      }
+    );
+
+    setCartItems((items) =>
+      items.filter((item) => item._id !== _id)
+    );
+
+  } catch (error) {
+    console.log("Remove cart error:", error);
+  }
+};
+
+
+// Price calculations
+const subtotal = cartItems.reduce(
+  (acc, item) =>
+    acc + Number(item.price) * item.quantity,
+  0
+);
+
+const discount = subtotal * 0.1;
+const total = subtotal - discount;
+
+
+// Loader
+if (loading) {
+  return (
+    <View style={{ marginTop: 120 }}>
+      <ActivityIndicator size="large" />
+    </View>
+  );
+}
+
 
   return (
     <View style={styles.container}>

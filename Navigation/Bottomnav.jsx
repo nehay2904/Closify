@@ -4,8 +4,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialIcons } from "@expo/vector-icons";
 
 // Import your screens
-import SplashScreen from '../Screens/Launch_screen';
-import LoginScreen from '../Screens/Login';
+import SplashScreen from '../Login pages/Launch_screen';
+import LoginScreen from '../Login pages/Login';
 import Home from '../Screens/Home';
 import Categories from '../Screens/Categories';
 import Profile from '../Screens/profile';

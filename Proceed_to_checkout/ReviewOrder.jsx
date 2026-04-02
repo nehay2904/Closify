@@ -12,7 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import axios from "axios";
 import { CartContext } from "../Context/Cardcontext";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function ReviewOrderScreen({ navigation, route }) {
   const {
     cartItems = [],
@@ -25,13 +25,16 @@ export default function ReviewOrderScreen({ navigation, route }) {
 
   const grandTotal = totalAmount;
 
-const userId = "69a6c3ebea0da2f10f658bec";
+const userId =  AsyncStorage.getItem("userId");
 // 
 const placeOrder = async () => {
   try {
+
+    const userId = await AsyncStorage.getItem("userId"); // ✅ get real id
+
     const orderData = {
       userId,
-      products: cartItems,   // 🔥 IMPORTANT
+      products: cartItems,
       totalAmount,
     };
 
@@ -43,11 +46,13 @@ const placeOrder = async () => {
     );
 
     console.log("Order success:", res.data);
-     navigation.navigate("orderConfirmationScreen");
+    navigation.navigate("orderConfirmationScreen");
+
   } catch (error) {
     console.log("Order error:", error.response?.data || error.message);
   }
 };
+
 
   return (
     <SafeAreaView style={styles.container}>

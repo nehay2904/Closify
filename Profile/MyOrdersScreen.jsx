@@ -21,32 +21,33 @@ export default function MyOrdersScreen({ navigation }) {
     fetchOrders();
   }, []);
 
-  const fetchOrders = async () => {
-    try {
-      const token = await AsyncStorage.getItem("token");
+const fetchOrders = async () => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    const userId = await AsyncStorage.getItem("userId"); // ✅ dynamic user
 
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
-      const userId = "69a6c3ebea0da2f10f658bec";
-
-      const res = await axios.get(
-        `https://closify-server-3.onrender.com/orders/${userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      setOrders(res.data?.orders || []);
+    if (!token || !userId) {
       setLoading(false);
-    } catch (error) {
-      setLoading(false);
+      return;
     }
-  };
+
+    const res = await axios.get(
+      `https://closify-server-3.onrender.com/orders/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    setOrders(res.data?.orders || []);
+    setLoading(false);
+
+  } catch (error) {
+    setLoading(false);
+  }
+};
+
 
   const getStatusColor = (status) => {
     switch (status) {
